@@ -1,9 +1,9 @@
 package manager;
 
-import manager.tasks.Task;
 import manager.tasks.Epic;
-import manager.tasks.Subtask;
 import manager.tasks.Status;
+import manager.tasks.Subtask;
+import manager.tasks.Task;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -94,7 +94,7 @@ public class TaskManager {
         }
         return epic;
     }
-    
+
     public ArrayList<Subtask> getEpicSubtasks(int id) {
         Epic currentEpic = epics.get(id);
         ArrayList<Integer> subtaskIds = currentEpic.getSubtaskIds();
@@ -145,7 +145,7 @@ public class TaskManager {
         var newSubtask = new Subtask(count,
                 subtask.getName(), subtask.getDescription(), subtask.getStatus(), subtask.getEpicId());
         subtasks.put(newSubtask.getId(), newSubtask);
-        addSubtaskToEpic(newSubtask.getEpicId(),newSubtask.getId());
+        addSubtaskToEpic(newSubtask.getEpicId(), newSubtask.getId());
         return new Subtask(newSubtask);
     }
 

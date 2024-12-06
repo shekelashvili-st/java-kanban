@@ -3,9 +3,9 @@ package manager.tasks;
 import java.util.Objects;
 
 public class Task {
+    private final Integer id;
     private String name;
     private String description;
-    private final Integer id;
     private Status status;
 
     public Task(Integer id, String name, String description, Status status) {
@@ -42,24 +42,24 @@ public class Task {
         return description;
     }
 
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
     public Status getStatus() {
         return status;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
     }
 
     public String getName() {
         return name;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
     public void setName(String name) {
         this.name = name;
-    }
-
-    public void setStatus(Status status) {
-        this.status = status;
     }
 
     @Override
