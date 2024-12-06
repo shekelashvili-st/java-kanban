@@ -1,3 +1,5 @@
+package manager.tasks;
+
 public class Subtask extends Task {
     private final Integer epicId;
 
@@ -16,5 +18,12 @@ public class Subtask extends Task {
 
     public Integer getEpicId() {
         return epicId;
+    }
+
+    @Override
+    public String toString() {
+        return "manager.tasks.Subtask{" +
+                "epicId=" + epicId +
+                "} " + super.toString();
     }
 }
