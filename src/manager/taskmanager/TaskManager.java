@@ -1,4 +1,4 @@
-package manager;
+package manager.taskmanager;
 
 import manager.tasks.Epic;
 import manager.tasks.Status;
@@ -58,11 +58,7 @@ public class TaskManager {
     }
 
     public void deleteEpics() {
-        for (Epic epic : epics.values()) {
-            for (int subtaskId : epic.getSubtaskIds()) {
-                deleteSubtaskById(subtaskId);
-            }
-        }
+        subtasks.clear();
         epics.clear();
     }
 
@@ -170,6 +166,7 @@ public class TaskManager {
         }
         Epic epic = epics.get(subtask.getEpicId());
         epic.getSubtaskStatus().merge(subtask.getStatus(), -1, Integer::sum);
+        epic.removeSubtask(subtask.getId());
         updateEpicStatus(epic.getId());
         return subtask;
     }
