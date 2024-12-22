@@ -1,4 +1,4 @@
-import manager.taskmanager.TaskManager;
+import manager.Managers;
 import manager.tasks.Epic;
 import manager.tasks.Status;
 import manager.tasks.Subtask;
@@ -7,7 +7,7 @@ import manager.tasks.Task;
 public class Main {
 
     public static void main(String[] args) {
-        var taskManager = new TaskManager();
+        var taskManager = Managers.getDefault();
         var task1 = new Task(null, "Сделать что-то одно", "А потом починить", Status.NEW);
         var task2 = new Task(null, "Сделать что-то второе", "Ничего не сломать", Status.IN_PROGRESS);
         Task task1WithId = taskManager.createTask(task1);
@@ -60,5 +60,8 @@ public class Main {
         taskManager.deleteEpicById(epic2WithId.getId());
         System.out.println("Удалили второй эпик:");
         System.out.println(taskManager.getEpics());
+
+        System.out.println("История обращений по id:");
+        System.out.println(taskManager.getHistory());
     }
 }
