@@ -5,6 +5,7 @@ import manager.tasks.Task;
 import java.util.ArrayList;
 
 public class InMemoryHistoryManager implements HistoryManager {
+    public static final int MAX_SIZE = 10;
     private final ArrayList<Task> taskHistory;
 
     public InMemoryHistoryManager() {

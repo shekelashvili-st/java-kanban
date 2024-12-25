@@ -1,6 +1,7 @@
 package manager.taskmanager;
 
 import manager.Managers;
+import manager.exception.IdNotPresentException;
 import manager.tasks.Epic;
 import manager.tasks.Status;
 import manager.tasks.Subtask;
@@ -11,8 +12,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Objects;
-
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class InMemoryTaskManagerTest {
     private static TaskManager taskManager;
@@ -127,7 +126,7 @@ class InMemoryTaskManagerTest {
         ArrayList<Task> history = taskManager.getHistory();
         Task taskInHistory = history.getFirst();
 
-        assertTrue(Objects.equals(taskInHistory.getId(), taskChanged.getId())
+        Assertions.assertTrue(Objects.equals(taskInHistory.getId(), taskChanged.getId())
                 && !Objects.equals(taskInHistory.getName(), taskChanged.getName())
                 && Objects.equals(taskInHistory.getDescription(), taskChanged.getDescription())
                 && taskInHistory.getStatus() == taskChanged.getStatus());
@@ -182,5 +181,32 @@ class InMemoryTaskManagerTest {
         Epic epicInManager = taskManager.getEpicById(epic1WithId.getId());
 
         Assertions.assertEquals(Status.DONE, epicInManager.getStatus());
+    }
+
+    @Test
+    void shouldReturnNullWhenCallingGetWithWrongId() {
+        Assertions.assertNull(taskManager.getEpicById(1));
+        Assertions.assertNull(taskManager.getTaskById(1));
+        Assertions.assertNull(taskManager.getSubtaskById(1));
+        Assertions.assertNull(taskManager.getEpicSubtasks(1));
+    }
+
+    @Test
+    void shouldThrowExceptionWhenCallingUpdateWithWrongId() {
+        var task1 = new Task(1, "Сделать что-то одно", "А потом починить", Status.NEW);
+        var epic1 = new Epic(2, "Большой эпик 1", "Из двух подзадач");
+        var subtask1 = new Subtask(3, "Сделать что-то одно", "А потом починить", Status.IN_PROGRESS, 1);
+
+
+        Assertions.assertThrows(IdNotPresentException.class, () -> taskManager.updateTask(task1));
+        Assertions.assertThrows(IdNotPresentException.class, () -> taskManager.updateEpic(epic1));
+        Assertions.assertThrows(IdNotPresentException.class, () -> taskManager.updateSubtask(subtask1));
+    }
+
+    @Test
+    void shouldThrowExceptionWhenCreatingSubtaskWithWrongEpicId() {
+        var subtask1 = new Subtask(3, "Сделать что-то одно", "А потом починить", Status.IN_PROGRESS, 1);
+
+        Assertions.assertThrows(IdNotPresentException.class, () -> taskManager.createSubtask(subtask1));
     }
 }
