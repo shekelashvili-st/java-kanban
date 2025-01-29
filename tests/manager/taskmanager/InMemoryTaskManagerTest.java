@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 class InMemoryTaskManagerTest {
@@ -123,7 +123,7 @@ class InMemoryTaskManagerTest {
         Task task1WithId = taskManager.createTask(task1);
         Task returnedTask1 = taskManager.getTaskById(1);
         taskManager.updateTask(taskChanged);
-        ArrayList<Task> history = taskManager.getHistory();
+        List<Task> history = taskManager.getHistory();
         Task taskInHistory = history.getFirst();
 
         Assertions.assertTrue(Objects.equals(taskInHistory.getId(), taskChanged.getId())

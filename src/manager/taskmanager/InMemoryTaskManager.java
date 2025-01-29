@@ -9,11 +9,13 @@ import manager.tasks.Task;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class InMemoryTaskManager implements TaskManager {
-    private final HashMap<Integer, Task> tasks;
-    private final HashMap<Integer, Epic> epics;
-    private final HashMap<Integer, Subtask> subtasks;
+    private final Map<Integer, Task> tasks;
+    private final Map<Integer, Epic> epics;
+    private final Map<Integer, Subtask> subtasks;
     private final HistoryManager historyManager;
     private int count = 0;
 
@@ -26,7 +28,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     //manager.tasks.Task methods
     @Override
-    public ArrayList<Task> getTasks() {
+    public List<Task> getTasks() {
         return new ArrayList<>(tasks.values());
     }
 
@@ -73,7 +75,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     //manager.tasks.Epic methods
     @Override
-    public ArrayList<Epic> getEpics() {
+    public List<Epic> getEpics() {
         return new ArrayList<>(epics.values());
     }
 
@@ -126,13 +128,13 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public ArrayList<Subtask> getEpicSubtasks(int id) {
+    public List<Subtask> getEpicSubtasks(int id) {
         Epic currentEpic = epics.get(id);
         if (currentEpic == null) {
             return null;
         }
-        ArrayList<Integer> subtaskIds = currentEpic.getSubtaskIds();
-        var subtasks = new ArrayList<Subtask>();
+        List<Integer> subtaskIds = currentEpic.getSubtaskIds();
+        List<Subtask> subtasks = new ArrayList<>();
         for (int subtaskId : subtaskIds) {
             Subtask subtaskCopy = new Subtask(this.subtasks.get(subtaskId));
             subtasks.add(subtaskCopy);
@@ -142,7 +144,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     private void updateEpicStatus(int epicId) {
         Epic epic = epics.get(epicId);
-        HashMap<Status, Integer> subtaskStatus = epic.getSubtaskStatus();
+        Map<Status, Integer> subtaskStatus = epic.getSubtaskStatus();
         int numNew = subtaskStatus.getOrDefault(Status.NEW, 0);
         int numInProgress = subtaskStatus.getOrDefault(Status.IN_PROGRESS, 0);
         int numDone = subtaskStatus.getOrDefault(Status.DONE, 0);
@@ -158,7 +160,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     // manager.tasks.Subtask methods
     @Override
-    public ArrayList<Subtask> getSubtasks() {
+    public List<Subtask> getSubtasks() {
         return new ArrayList<>(subtasks.values());
     }
 
@@ -228,7 +230,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public ArrayList<Task> getHistory() {
+    public List<Task> getHistory() {
         return historyManager.getHistory();
     }
 
