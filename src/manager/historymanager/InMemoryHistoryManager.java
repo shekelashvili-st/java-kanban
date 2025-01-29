@@ -1,28 +1,86 @@
 package manager.historymanager;
 
+import manager.historymanager.datastructure.Node;
 import manager.tasks.Task;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class InMemoryHistoryManager implements HistoryManager {
-    public static final int MAX_SIZE = 10;
-    private final List<Task> taskHistory;
+    private final Map<Integer, Node<Task>> idToNode;
+    private Node<Task> listHead = null;
+    private Node<Task> listTail = null;
+    private List<Task> cachedHistory = null;
 
     public InMemoryHistoryManager() {
-        taskHistory = new ArrayList<>();
+        idToNode = new HashMap<>();
     }
 
     @Override
     public void add(Task task) {
-        if (taskHistory.size() == MAX_SIZE) {
-            taskHistory.removeFirst();
+        Integer taskId = task.getId();
+        Node<Task> duplicate = idToNode.get(taskId);
+
+        if (duplicate != null) {
+            removeNode(duplicate);
         }
-        taskHistory.add(task);
+        linkLast(task);
+        idToNode.put(taskId, listTail);
+        cachedHistory = null;
+    }
+
+    @Override
+    public void remove(int id) {
+        Node<Task> node = idToNode.remove(id);
+        if (node != null) {
+            removeNode(node);
+        }
+        cachedHistory = null;
     }
 
     @Override
     public List<Task> getHistory() {
-        return new ArrayList<>(taskHistory);
+        if (cachedHistory == null) {
+            updateCachedHistory();
+        }
+        return cachedHistory;
+    }
+
+    private void linkLast(Task task) {
+        Node<Task> taskNode;
+
+        if (listHead == null) {
+            taskNode = new Node<>(task, null, null);
+            listHead = taskNode;
+        } else {
+            taskNode = new Node<>(task, null, listTail);
+            listTail.setNext(taskNode);
+        }
+        listTail = taskNode;
+    }
+
+    private void removeNode(Node<Task> node) {
+        Node<Task> previous = node.getPrevious();
+        Node<Task> next = node.getNext();
+
+        if (previous == null) {
+            listHead = next;
+        } else {
+            previous.setNext(next);
+        }
+        if (next == null) {
+            listTail = previous;
+        } else {
+            next.setPrevious(previous);
+        }
+    }
+
+    private void updateCachedHistory() {
+        cachedHistory = new ArrayList<>();
+        for (Node<Task> currentNode = listHead; currentNode != null; currentNode = currentNode.getNext()) {
+            cachedHistory.add(currentNode.getValue());
+        }
     }
 }
