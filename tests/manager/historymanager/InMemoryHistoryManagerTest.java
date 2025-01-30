@@ -7,8 +7,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
-
 class InMemoryHistoryManagerTest {
     private static InMemoryHistoryManager historyManager;
 
@@ -98,18 +96,5 @@ class InMemoryHistoryManagerTest {
         Assertions.assertEquals(epic1, historyManager.getHistory().get(0));
         Assertions.assertEquals(epic2, historyManager.getHistory().get(1));
         Assertions.assertEquals(task1, historyManager.getHistory().get(2));
-    }
-
-    @Test
-    void shouldCacheHistory() {
-        var task1 = new Task(1, "Сделать что-то одно", "А потом починить", Status.NEW);
-        var epic1 = new Epic(2, "Большой эпик 1", "Из двух подзадач");
-
-        historyManager.add(task1);
-        historyManager.add(epic1);
-        List<Task> history1 = historyManager.getHistory();
-        List<Task> history2 = historyManager.getHistory();
-
-        Assertions.assertSame(history1, history2);
     }
 }

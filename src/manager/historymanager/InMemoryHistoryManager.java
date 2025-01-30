@@ -1,6 +1,8 @@
 package manager.historymanager;
 
 import manager.historymanager.datastructure.Node;
+import manager.tasks.Epic;
+import manager.tasks.Subtask;
 import manager.tasks.Task;
 
 import java.util.ArrayList;
@@ -45,7 +47,17 @@ public class InMemoryHistoryManager implements HistoryManager {
         if (cachedHistory == null) {
             updateCachedHistory();
         }
-        return cachedHistory;
+        List<Task> guardedHistory = new ArrayList<>(cachedHistory.size());
+        for (Task task : cachedHistory) {
+            if (task instanceof Subtask subtask) {
+                guardedHistory.add(new Subtask(subtask));
+            } else if (task instanceof Epic epic) {
+                guardedHistory.add(new Epic(epic));
+            } else {
+                guardedHistory.add(new Task(task));
+            }
+        }
+        return guardedHistory;
     }
 
     private void linkLast(Task task) {
