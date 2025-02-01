@@ -1,6 +1,5 @@
 package manager.historymanager;
 
-import manager.historymanager.datastructure.Node;
 import manager.tasks.Epic;
 import manager.tasks.Subtask;
 import manager.tasks.Task;
@@ -11,10 +10,9 @@ import java.util.List;
 import java.util.Map;
 
 public class InMemoryHistoryManager implements HistoryManager {
-    private final Map<Integer, Node<Task>> idToNode;
-    private Node<Task> listHead = null;
-    private Node<Task> listTail = null;
-    private List<Task> cachedHistory = null;
+    private final Map<Integer, Node> idToNode;
+    private Node listHead = null;
+    private Node listTail = null;
 
     public InMemoryHistoryManager() {
         idToNode = new HashMap<>();
@@ -23,32 +21,28 @@ public class InMemoryHistoryManager implements HistoryManager {
     @Override
     public void add(Task task) {
         Integer taskId = task.getId();
-        Node<Task> duplicate = idToNode.get(taskId);
+        Node duplicate = idToNode.get(taskId);
 
         if (duplicate != null) {
             removeNode(duplicate);
         }
         linkLast(task);
         idToNode.put(taskId, listTail);
-        cachedHistory = null;
     }
 
     @Override
     public void remove(int id) {
-        Node<Task> node = idToNode.remove(id);
+        Node node = idToNode.remove(id);
         if (node != null) {
             removeNode(node);
         }
-        cachedHistory = null;
     }
 
     @Override
     public List<Task> getHistory() {
-        if (cachedHistory == null) {
-            updateCachedHistory();
-        }
-        List<Task> guardedHistory = new ArrayList<>(cachedHistory.size());
-        for (Task task : cachedHistory) {
+        List<Task> guardedHistory = new ArrayList<>();
+        for (Node currentNode = listHead; currentNode != null; currentNode = currentNode.getNext()) {
+            Task task = currentNode.getValue();
             if (task instanceof Subtask subtask) {
                 guardedHistory.add(new Subtask(subtask));
             } else if (task instanceof Epic epic) {
@@ -61,21 +55,21 @@ public class InMemoryHistoryManager implements HistoryManager {
     }
 
     private void linkLast(Task task) {
-        Node<Task> taskNode;
+        Node taskNode;
 
         if (listHead == null) {
-            taskNode = new Node<>(task, null, null);
+            taskNode = new Node(task, null, null);
             listHead = taskNode;
         } else {
-            taskNode = new Node<>(task, null, listTail);
+            taskNode = new Node(task, null, listTail);
             listTail.setNext(taskNode);
         }
         listTail = taskNode;
     }
 
-    private void removeNode(Node<Task> node) {
-        Node<Task> previous = node.getPrevious();
-        Node<Task> next = node.getNext();
+    private void removeNode(Node node) {
+        Node previous = node.getPrevious();
+        Node next = node.getNext();
 
         if (previous == null) {
             listHead = next;
@@ -89,10 +83,39 @@ public class InMemoryHistoryManager implements HistoryManager {
         }
     }
 
-    private void updateCachedHistory() {
-        cachedHistory = new ArrayList<>();
-        for (Node<Task> currentNode = listHead; currentNode != null; currentNode = currentNode.getNext()) {
-            cachedHistory.add(currentNode.getValue());
+    public static class Node {
+        private Task value;
+        private Node next;
+        private Node previous;
+
+        public Node(Task value, Node next, Node previous) {
+            this.value = value;
+            this.next = next;
+            this.previous = previous;
+        }
+
+        public Task getValue() {
+            return value;
+        }
+
+        public void setValue(Task value) {
+            this.value = value;
+        }
+
+        public Node getNext() {
+            return next;
+        }
+
+        public void setNext(Node next) {
+            this.next = next;
+        }
+
+        public Node getPrevious() {
+            return previous;
+        }
+
+        public void setPrevious(Node previous) {
+            this.previous = previous;
         }
     }
 }
