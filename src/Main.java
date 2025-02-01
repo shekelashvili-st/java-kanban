@@ -1,67 +1,69 @@
 import manager.Managers;
+import manager.taskmanager.TaskManager;
 import manager.tasks.Epic;
 import manager.tasks.Status;
 import manager.tasks.Subtask;
 import manager.tasks.Task;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 public class Main {
 
     public static void main(String[] args) {
-        var taskManager = Managers.getDefault();
-        var task1 = new Task(null, "Сделать что-то одно", "А потом починить", Status.NEW);
-        var task2 = new Task(null, "Сделать что-то второе", "Ничего не сломать", Status.IN_PROGRESS);
-        Task task1WithId = taskManager.createTask(task1);
-        Task task2WithId = taskManager.createTask(task2);
+        TaskManager manager = Managers.getDefault();
 
-        var epic1 = new Epic(null, "Большой эпик 1", "Из двух подзадач");
-        var epic2 = new Epic(null, "Меньший эпик 2", "Из одной позадачи");
-        Epic epic1WithId = taskManager.createEpic(epic1);
-        Epic epic2WithId = taskManager.createEpic(epic2);
+        Task task1 = new Task(null, "New task 1", "Description 1", Status.NEW);
+        Task task2 = new Task(null, "New task 2", "Description 2", Status.NEW);
+        Epic epic1 = new Epic(null, "New epic 1", "Description 1");
+        Subtask subtask1 = new Subtask(null, "New subtask 1", "Description 1", Status.NEW, 3);
+        Subtask subtask2 = new Subtask(null, "New subtask 2", "Description 2", Status.NEW, 3);
+        Subtask subtask3 = new Subtask(null, "New subtask 3", "Description 3", Status.NEW, 3);
+        Epic epic2 = new Epic(null, "New epic 2", "Description 2");
 
-        var subtask1 = new Subtask(null, "Сделать малое одно", "А потом починить",
-                Status.NEW, epic1WithId.getId());
-        var subtask2 = new Subtask(null, "Сделать малое второе", "Ничего не сломать",
-                Status.IN_PROGRESS, epic1WithId.getId());
-        var subtask3 = new Subtask(null, "Сделать малое третье", "Ничего не сломать",
-                Status.NEW, epic2WithId.getId());
-        Subtask subtask1WithId = taskManager.createSubtask(subtask1);
-        Subtask subtask2WithId = taskManager.createSubtask(subtask2);
-        Subtask subtask3WithId = taskManager.createSubtask(subtask3);
+        var task1Id = manager.createTask(task1);
+        var task2Id = manager.createTask(task2);
+        var epic1Id = manager.createEpic(epic1);
+        var epic2Id = manager.createEpic(epic2);
+        var subtask1Id = manager.createSubtask(subtask1);
+        var subtask2Id = manager.createSubtask(subtask2);
+        var subtask3Id = manager.createSubtask(subtask3);
 
-        System.out.println("Tasks:");
-        System.out.println(taskManager.getTasks());
-        System.out.println("Epics:");
-        System.out.println(taskManager.getEpics());
-        System.out.println("Subtasks:");
-        System.out.println(taskManager.getSubtasks());
+        manager.getSubtaskById(subtask1Id.getId());
+        manager.getTaskById(task1Id.getId());
+        manager.getTaskById(task2Id.getId());
+        manager.getSubtaskById(subtask1Id.getId());
+        manager.getSubtaskById(subtask2Id.getId());
+        manager.getSubtaskById(subtask3Id.getId());
+        manager.getSubtaskById(subtask1Id.getId());
+        manager.getEpicById(epic1Id.getId());
+        manager.getEpicById(epic2Id.getId());
+        manager.getTaskById(task2Id.getId());
+        manager.getTaskById(task1Id.getId());
+        manager.getEpicById(epic1Id.getId());
 
-        task2WithId.setDescription("Не сломали");
-        task2WithId.setStatus(Status.DONE);
-        taskManager.updateTask(task2WithId);
-        System.out.println("Изменили описание второй задачи:");
-        System.out.println(taskManager.getTasks());
+        // No duplicates
+        List<Task> history = manager.getHistory();
+        Set<Task> historyNoDup = new HashSet<>(history);
+        if (historyNoDup.size() == history.size()) {
+            System.out.println("No duplicates");
+        }
 
-        epic1WithId.setStatus(Status.NEW);
-        epic1WithId.setDescription("Изменили статус, пока менеджер не смотрит");
-        taskManager.updateEpic(epic1WithId);
-        System.out.println("Изменили описание первого эпика, \"Изменили\" его статус, вывели по id:");
-        System.out.println(taskManager.getEpicById(epic1WithId.getId()));
+        // Deleted task is removed from history
+        manager.deleteSubtaskById(subtask1Id.getId());
+        manager.deleteEpicById(epic2Id.getId());
+        manager.deleteTaskById(task2Id.getId());
+        history = manager.getHistory();
+        if (historyNoDup.size() == history.size() + 3) {
+            System.out.println("Tasks are removed");
+        }
 
-        subtask1WithId.setStatus(Status.DONE);
-        subtask2WithId.setStatus(Status.DONE);
-        taskManager.updateSubtask(subtask1WithId);
-        taskManager.updateSubtask(subtask2WithId);
-        taskManager.deleteSubtaskById(subtask3WithId.getId());
-        System.out.println("Поменяли статус подзадач 1 и 2 на DONE, удалили 3 подзадачу:");
-        System.out.println(taskManager.getSubtasks());
-
-        System.out.println("Изменения в эпиках:");
-        System.out.println(taskManager.getEpics());
-        taskManager.deleteEpicById(epic2WithId.getId());
-        System.out.println("Удалили второй эпик:");
-        System.out.println(taskManager.getEpics());
-
-        System.out.println("История обращений по id:");
-        System.out.println(taskManager.getHistory());
+        // Epic is deleted with its subtasks
+        manager.deleteEpicById(epic1Id.getId());
+        history = manager.getHistory();
+        if (history.size() == 1) {
+            System.out.println("Epic and its subtask are removed");
+        }
     }
 }

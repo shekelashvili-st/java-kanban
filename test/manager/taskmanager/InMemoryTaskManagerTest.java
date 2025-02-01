@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 class InMemoryTaskManagerTest {
@@ -123,7 +123,7 @@ class InMemoryTaskManagerTest {
         Task task1WithId = taskManager.createTask(task1);
         Task returnedTask1 = taskManager.getTaskById(1);
         taskManager.updateTask(taskChanged);
-        ArrayList<Task> history = taskManager.getHistory();
+        List<Task> history = taskManager.getHistory();
         Task taskInHistory = history.getFirst();
 
         Assertions.assertTrue(Objects.equals(taskInHistory.getId(), taskChanged.getId())
@@ -167,6 +167,24 @@ class InMemoryTaskManagerTest {
     }
 
     @Test
+    void shouldCalculateEpicStatusWhenModifyingSubtasks() {
+        var epic1 = new Epic(null, "Большой эпик 1", "Из двух подзадач");
+        Epic epic1WithId = taskManager.createEpic(epic1);
+        var subtask1 = new Subtask(null, "Сделать малое одно", "А потом починить",
+                Status.IN_PROGRESS, epic1WithId.getId());
+        var subtask2 = new Subtask(null, "Сделать малое второе", "Ничего не сломать",
+                Status.DONE, epic1WithId.getId());
+
+        Subtask subtask1WithId = taskManager.createSubtask(subtask1);
+        Subtask subtask2WithId = taskManager.createSubtask(subtask2);
+        subtask1WithId.setStatus(Status.DONE);
+        taskManager.updateSubtask(subtask1WithId);
+        Epic epicInManager = taskManager.getEpicById(epic1WithId.getId());
+
+        Assertions.assertEquals(Status.DONE, epicInManager.getStatus());
+    }
+
+    @Test
     void shouldCalculateEpicStatusWhenDeletingSubtasks() {
         var epic1 = new Epic(null, "Большой эпик 1", "Из двух подзадач");
         Epic epic1WithId = taskManager.createEpic(epic1);
@@ -181,6 +199,24 @@ class InMemoryTaskManagerTest {
         Epic epicInManager = taskManager.getEpicById(epic1WithId.getId());
 
         Assertions.assertEquals(Status.DONE, epicInManager.getStatus());
+    }
+
+    @Test
+    void shouldUpdateEpicSubtaskIdsWhenDeletingSubtasks() {
+        var epic1 = new Epic(null, "Большой эпик 1", "Из двух подзадач");
+        Epic epic1WithId = taskManager.createEpic(epic1);
+        var subtask1 = new Subtask(null, "Сделать малое одно", "А потом починить",
+                Status.IN_PROGRESS, epic1WithId.getId());
+        var subtask2 = new Subtask(null, "Сделать малое второе", "Ничего не сломать",
+                Status.DONE, epic1WithId.getId());
+
+        Subtask subtask1WithId = taskManager.createSubtask(subtask1);
+        Subtask subtask2WithId = taskManager.createSubtask(subtask2);
+        taskManager.deleteSubtaskById(subtask1WithId.getId());
+        Epic epicInManager = taskManager.getEpicById(epic1WithId.getId());
+
+        Assertions.assertEquals(subtask2WithId.getId(), epicInManager.getSubtaskIds().getFirst());
+        Assertions.assertEquals(1, epicInManager.getSubtaskIds().size());
     }
 
     @Test
@@ -209,4 +245,81 @@ class InMemoryTaskManagerTest {
 
         Assertions.assertThrows(IdNotPresentException.class, () -> taskManager.createSubtask(subtask1));
     }
+
+    @Test
+    void shouldRemoveDeletedByIdTasksFromHistory() {
+        var epic1 = new Epic(null, "Большой эпик 1", "Из двух подзадач");
+        Epic epic1WithId = taskManager.createEpic(epic1);
+        var subtask1 = new Subtask(null, "Сделать малое одно", "А потом починить",
+                Status.IN_PROGRESS, epic1WithId.getId());
+        var subtask2 = new Subtask(null, "Сделать малое второе", "Ничего не сломать",
+                Status.DONE, epic1WithId.getId());
+
+        Subtask subtask1WithId = taskManager.createSubtask(subtask1);
+        Subtask subtask2WithId = taskManager.createSubtask(subtask2);
+        taskManager.getSubtaskById(subtask2WithId.getId());
+        taskManager.getSubtaskById(subtask1WithId.getId());
+        taskManager.getEpicById(epic1WithId.getId());
+        taskManager.deleteSubtaskById(subtask1WithId.getId());
+
+        Assertions.assertEquals(List.of(subtask2WithId, epic1WithId), taskManager.getHistory());
+    }
+
+    @Test
+    void shouldRemoveConsequentlyDeletedSubtasksFromHistory() {
+        var epic1 = new Epic(null, "Большой эпик 1", "Из двух подзадач");
+        Epic epic1WithId = taskManager.createEpic(epic1);
+        var subtask1 = new Subtask(null, "Сделать малое одно", "А потом починить",
+                Status.IN_PROGRESS, epic1WithId.getId());
+        var subtask2 = new Subtask(null, "Сделать малое второе", "Ничего не сломать",
+                Status.DONE, epic1WithId.getId());
+
+        Subtask subtask1WithId = taskManager.createSubtask(subtask1);
+        Subtask subtask2WithId = taskManager.createSubtask(subtask2);
+        taskManager.getSubtaskById(subtask2WithId.getId());
+        taskManager.getSubtaskById(subtask1WithId.getId());
+        taskManager.getEpicById(epic1WithId.getId());
+        taskManager.deleteEpicById(epic1WithId.getId());
+
+        Assertions.assertEquals(List.of(), taskManager.getHistory());
+    }
+
+    @Test
+    void shouldRemoveBatchDeletedSubtasksFromHistory() {
+        var epic1 = new Epic(null, "Большой эпик 1", "Из двух подзадач");
+        Epic epic1WithId = taskManager.createEpic(epic1);
+        var subtask1 = new Subtask(null, "Сделать малое одно", "А потом починить",
+                Status.IN_PROGRESS, epic1WithId.getId());
+        var subtask2 = new Subtask(null, "Сделать малое второе", "Ничего не сломать",
+                Status.DONE, epic1WithId.getId());
+
+        Subtask subtask1WithId = taskManager.createSubtask(subtask1);
+        Subtask subtask2WithId = taskManager.createSubtask(subtask2);
+        taskManager.getSubtaskById(subtask2WithId.getId());
+        taskManager.getSubtaskById(subtask1WithId.getId());
+        taskManager.getEpicById(epic1WithId.getId());
+        taskManager.deleteSubtasks();
+
+        Assertions.assertEquals(List.of(epic1WithId), taskManager.getHistory());
+    }
+
+    @Test
+    void shouldRemoveBatchDeletedEpicsAndSubtasksFromHistory() {
+        var epic1 = new Epic(null, "Большой эпик 1", "Из двух подзадач");
+        Epic epic1WithId = taskManager.createEpic(epic1);
+        var subtask1 = new Subtask(null, "Сделать малое одно", "А потом починить",
+                Status.IN_PROGRESS, epic1WithId.getId());
+        var subtask2 = new Subtask(null, "Сделать малое второе", "Ничего не сломать",
+                Status.DONE, epic1WithId.getId());
+
+        Subtask subtask1WithId = taskManager.createSubtask(subtask1);
+        Subtask subtask2WithId = taskManager.createSubtask(subtask2);
+        taskManager.getSubtaskById(subtask2WithId.getId());
+        taskManager.getSubtaskById(subtask1WithId.getId());
+        taskManager.getEpicById(epic1WithId.getId());
+        taskManager.deleteEpics();
+
+        Assertions.assertEquals(List.of(), taskManager.getHistory());
+    }
 }
+

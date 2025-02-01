@@ -2,10 +2,12 @@ package manager.tasks;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class Epic extends Task {
-    private final ArrayList<Integer> subtaskIds;
-    private final HashMap<Status, Integer> subtaskStatus;
+    private final List<Integer> subtaskIds;
+    private final Map<Status, Integer> subtaskStatus;
 
     public Epic(Integer id, String name, String description) {
         super(id, name, description, Status.NEW);
@@ -19,11 +21,11 @@ public class Epic extends Task {
         this.subtaskStatus = new HashMap<>(epic.getSubtaskStatus());
     }
 
-    public ArrayList<Integer> getSubtaskIds() {
+    public List<Integer> getSubtaskIds() {
         return subtaskIds;
     }
 
-    public HashMap<Status, Integer> getSubtaskStatus() {
+    public Map<Status, Integer> getSubtaskStatus() {
         return subtaskStatus;
     }
 
