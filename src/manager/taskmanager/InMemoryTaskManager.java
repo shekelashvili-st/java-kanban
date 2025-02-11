@@ -13,9 +13,9 @@ import java.util.List;
 import java.util.Map;
 
 public class InMemoryTaskManager implements TaskManager {
-    private final Map<Integer, Task> tasks;
-    private final Map<Integer, Epic> epics;
-    private final Map<Integer, Subtask> subtasks;
+    protected final Map<Integer, Task> tasks;
+    protected final Map<Integer, Epic> epics;
+    protected final Map<Integer, Subtask> subtasks;
     private final HistoryManager historyManager;
     private int count = 0;
 
@@ -251,7 +251,7 @@ public class InMemoryTaskManager implements TaskManager {
         return historyManager.getHistory();
     }
 
-    private void addSubtaskToEpic(int epicId, int subtaskId) {
+    protected void addSubtaskToEpic(int epicId, int subtaskId) {
         Epic epic = epics.get(epicId);
         Subtask subtask = subtasks.get(subtaskId);
         epic.addSubtask(subtaskId);
