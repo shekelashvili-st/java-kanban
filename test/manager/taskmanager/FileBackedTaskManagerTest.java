@@ -37,6 +37,25 @@ class FileBackedTaskManagerTest {
     }
 
     @Test
+    void savingEmptyManagerShouldResultInEmptyFile() {
+        taskManager.deleteTasks();
+        taskManager.deleteEpics();
+
+        Assertions.assertEquals(0, tempFile.toFile().length());
+    }
+
+    @Test
+    void loadingEmptyFileShouldReturnEmptyManager() throws IOException {
+        Path tempFile2 = Files.createTempFile(null, ".tmp");
+        tempFile2.toFile().deleteOnExit();
+        TaskManager newManager = Managers.loadTaskManagerFromFile(tempFile2);
+
+        Assertions.assertTrue(newManager.getTasks().isEmpty());
+        Assertions.assertTrue(newManager.getSubtasks().isEmpty());
+        Assertions.assertTrue(newManager.getEpics().isEmpty());
+    }
+
+    @Test
     void deleteTasksShouldUpdateSaveFile() {
         taskManager.deleteTasks();
         TaskManager newManager = Managers.loadTaskManagerFromFile(tempFile);

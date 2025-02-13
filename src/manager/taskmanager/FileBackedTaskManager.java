@@ -20,8 +20,8 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         backupFile = filename;
     }
 
-    public static InMemoryTaskManager loadFromFile(HistoryManager historyManager, Path file) {
-        InMemoryTaskManager manager = new FileBackedTaskManager(historyManager, file);
+    public static FileBackedTaskManager loadFromFile(HistoryManager historyManager, Path file) {
+        FileBackedTaskManager manager = new FileBackedTaskManager(historyManager, file);
 
         try {
             List<String> lines = Files.readAllLines(file);
