@@ -26,4 +26,14 @@ public class Subtask extends Task {
                 "epicId=" + epicId +
                 "} " + super.toString();
     }
+
+    @Override
+    public String toCSV() {
+        return getId() + ", "
+                + TaskTypes.SUBTASK + ", "
+                + getName() + ", "
+                + getStatus() + ", "
+                + getDescription() + ", "
+                + getEpicId();
+    }
 }
