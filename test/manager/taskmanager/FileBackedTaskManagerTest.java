@@ -25,15 +25,15 @@ class FileBackedTaskManagerTest {
         taskManager = new FileBackedTaskManager(Managers.getDefaultHistory(), tempFile);
 
         var task1 = new Task(null, "Сделать что-то одно", "А потом починить", Status.NEW);
-        Task task1WithId = taskManager.createTask(task1);
+        taskManager.createTask(task1);
         var epic1 = new Epic(null, "Большой эпик 1", "Из двух подзадач");
         Epic epic1WithId = taskManager.createEpic(epic1);
         var subtask1 = new Subtask(null, "Сделать малое одно", "А потом починить",
                 Status.NEW, epic1WithId.getId());
         var subtask2 = new Subtask(null, "Сделать малое второе", "Ничего не сломать",
                 Status.IN_PROGRESS, epic1WithId.getId());
-        Subtask subtask1WithId = taskManager.createSubtask(subtask1);
-        Subtask subtask2WithId = taskManager.createSubtask(subtask2);
+        taskManager.createSubtask(subtask1);
+        taskManager.createSubtask(subtask2);
     }
 
     @Test

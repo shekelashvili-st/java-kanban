@@ -3,10 +3,7 @@ package manager.taskmanager;
 import manager.exception.TaskManagerLoadException;
 import manager.exception.TaskManagerSaveException;
 import manager.historymanager.HistoryManager;
-import manager.tasks.Epic;
-import manager.tasks.Status;
-import manager.tasks.Subtask;
-import manager.tasks.Task;
+import manager.tasks.*;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -28,25 +25,37 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
         try {
             List<String> lines = Files.readAllLines(file);
+            int maxId = 0;
             for (String line : lines) {
                 String[] tokens = line.split(", ");
-                switch (tokens[1]) {
-                    case "TASK" -> {
-                        Task task = new Task(Integer.parseInt(tokens[0]), tokens[2], tokens[4], Enum.valueOf(Status.class, tokens[3]));
+                Integer id = Integer.parseInt(tokens[0]);
+                TaskTypes type = Enum.valueOf(TaskTypes.class, tokens[1]);
+                String name = tokens[2];
+                String description = tokens[4];
+                Status status = Enum.valueOf(Status.class, tokens[3]);
+
+                if (id > maxId) {
+                    maxId = id;
+                }
+                switch (type) {
+                    case TASK -> {
+                        Task task = new Task(id, name, description, status);
                         manager.tasks.put(task.getId(), task);
                     }
-                    case "EPIC" -> {
-                        Epic epic = new Epic(Integer.parseInt(tokens[0]), tokens[2], tokens[4]);
+                    case EPIC -> {
+                        Epic epic = new Epic(id, name, description);
                         manager.epics.put(epic.getId(), epic);
                     }
-                    case "SUBTASK" -> {
-                        Subtask subtask = new Subtask(Integer.parseInt(tokens[0]), tokens[2], tokens[4],
-                                Enum.valueOf(Status.class, tokens[3]), Integer.parseInt(tokens[5]));
+                    case SUBTASK -> {
+                        Integer epicId = Integer.parseInt(tokens[5]);
+                        Subtask subtask = new Subtask(id, name, description,
+                                status, epicId);
                         manager.subtasks.put(subtask.getId(), subtask);
                         manager.addSubtaskToEpic(subtask.getEpicId(), subtask.getId());
                     }
                 }
             }
+            manager.count = maxId;
         } catch (IOException e) {
             throw new TaskManagerLoadException("Failed to load task manager state from file", file);
         }
@@ -137,26 +146,13 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     private void save() {
         try (var out = new PrintWriter(backupFile.toFile())) {
             for (Task t : getTasks()) {
-                out.println(t.getId() + ", "
-                        + "TASK" + ", "
-                        + t.getName() + ", "
-                        + t.getStatus() + ", "
-                        + t.getDescription() + ", ");
+                out.println(t.toCSV());
             }
             for (Epic t : getEpics()) {
-                out.println(t.getId() + ", "
-                        + "EPIC" + ", "
-                        + t.getName() + ", "
-                        + t.getStatus() + ", "
-                        + t.getDescription() + ", ");
+                out.println(t.toCSV());
             }
             for (Subtask t : getSubtasks()) {
-                out.println(t.getId() + ", "
-                        + "SUBTASK" + ", "
-                        + t.getName() + ", "
-                        + t.getStatus() + ", "
-                        + t.getDescription() + ", "
-                        + t.getEpicId());
+                out.println(t.toCSV());
             }
         } catch (IOException e) {
             throw new TaskManagerSaveException("Failed to save task manager state to file", backupFile);

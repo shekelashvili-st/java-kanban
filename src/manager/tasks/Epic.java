@@ -44,4 +44,13 @@ public class Epic extends Task {
                 ", subtaskStatus=" + subtaskStatus +
                 "} " + super.toString();
     }
+
+    @Override
+    public String toCSV() {
+        return getId() + ", "
+                + TaskTypes.EPIC + ", "
+                + getName() + ", "
+                + getStatus() + ", "
+                + getDescription() + ", ";
+    }
 }

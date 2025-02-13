@@ -71,4 +71,12 @@ public class Task {
                 ", status=" + status +
                 '}';
     }
+
+    public String toCSV() {
+        return getId() + ", "
+                + TaskTypes.TASK + ", "
+                + getName() + ", "
+                + getStatus() + ", "
+                + getDescription() + ", ";
+    }
 }
