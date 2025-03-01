@@ -58,7 +58,7 @@ class InMemoryTaskManagerTest {
     @Test
     void shouldAddAndReturnCorrectSubtask() {
         var epic1 = new Epic(null, "Сделать что-то одно", "А потом починить");
-        Epic epic1WithId = taskManager.createEpic(epic1);
+        taskManager.createEpic(epic1);
         var subtask1 = new Subtask(null, "Сделать что-то одно", "А потом починить", Status.IN_PROGRESS, 1);
 
         Subtask subtask1WithId = taskManager.createSubtask(subtask1);
@@ -103,7 +103,7 @@ class InMemoryTaskManagerTest {
     @Test
     void shouldNotChangeSubtaskStateInManagerFromOutside() {
         var epic1 = new Epic(null, "Сделать что-то одно", "А потом починить");
-        Epic epic1WithId = taskManager.createEpic(epic1);
+        taskManager.createEpic(epic1);
         var subtask1 = new Subtask(null, "Сделать что-то одно", "А потом починить", Status.IN_PROGRESS, 1);
 
         Subtask subtask1WithId = taskManager.createSubtask(subtask1);
@@ -120,8 +120,8 @@ class InMemoryTaskManagerTest {
         var task1 = new Task(null, "Сделать что-то одно", "А потом починить", Status.NEW);
         var taskChanged = new Task(1, "Changed name", "А потом починить", Status.NEW);
 
-        Task task1WithId = taskManager.createTask(task1);
-        Task returnedTask1 = taskManager.getTaskById(1);
+        taskManager.createTask(task1);
+        taskManager.getTaskById(1);
         taskManager.updateTask(taskChanged);
         List<Task> history = taskManager.getHistory();
         Task taskInHistory = history.getFirst();
@@ -140,8 +140,8 @@ class InMemoryTaskManagerTest {
                 Status.NEW, epic1WithId.getId());
         var subtask2 = new Subtask(null, "Сделать малое второе", "Ничего не сломать",
                 Status.IN_PROGRESS, epic1WithId.getId());
-        Subtask subtask1WithId = taskManager.createSubtask(subtask1);
-        Subtask subtask2WithId = taskManager.createSubtask(subtask2);
+        taskManager.createSubtask(subtask1);
+        taskManager.createSubtask(subtask2);
 
         epic1WithId.setStatus(Status.NEW);
         taskManager.updateEpic(epic1WithId);
@@ -159,8 +159,8 @@ class InMemoryTaskManagerTest {
         var subtask2 = new Subtask(null, "Сделать малое второе", "Ничего не сломать",
                 Status.DONE, epic1WithId.getId());
 
-        Subtask subtask1WithId = taskManager.createSubtask(subtask1);
-        Subtask subtask2WithId = taskManager.createSubtask(subtask2);
+        taskManager.createSubtask(subtask1);
+        taskManager.createSubtask(subtask2);
         Epic epicInManager = taskManager.getEpicById(epic1WithId.getId());
 
         Assertions.assertEquals(Status.IN_PROGRESS, epicInManager.getStatus());
@@ -176,7 +176,7 @@ class InMemoryTaskManagerTest {
                 Status.DONE, epic1WithId.getId());
 
         Subtask subtask1WithId = taskManager.createSubtask(subtask1);
-        Subtask subtask2WithId = taskManager.createSubtask(subtask2);
+        taskManager.createSubtask(subtask2);
         subtask1WithId.setStatus(Status.DONE);
         taskManager.updateSubtask(subtask1WithId);
         Epic epicInManager = taskManager.getEpicById(epic1WithId.getId());
@@ -194,7 +194,7 @@ class InMemoryTaskManagerTest {
                 Status.DONE, epic1WithId.getId());
 
         Subtask subtask1WithId = taskManager.createSubtask(subtask1);
-        Subtask subtask2WithId = taskManager.createSubtask(subtask2);
+        taskManager.createSubtask(subtask2);
         taskManager.deleteSubtaskById(subtask1WithId.getId());
         Epic epicInManager = taskManager.getEpicById(epic1WithId.getId());
 
