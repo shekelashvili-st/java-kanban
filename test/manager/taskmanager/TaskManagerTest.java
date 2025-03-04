@@ -533,4 +533,20 @@ public abstract class TaskManagerTest<T extends TaskManager> {
         Assertions.assertThrows(TaskCollisionException.class, () -> taskManager.createTask(collidingWhole));
         Assertions.assertThrows(TaskCollisionException.class, () -> taskManager.createTask(collidingEnd));
     }
+
+    @Test
+    void shouldReturnEpicSubtasks() {
+        var epic1 = new Epic(null, "Большой эпик 1", "Из двух подзадач");
+        Epic epic1WithId = taskManager.createEpic(epic1);
+        var subtask1 = new Subtask(null, "Сделать малое одно", "А потом починить",
+                Status.IN_PROGRESS, null, null, epic1WithId.getId());
+        var subtask2 = new Subtask(null, "Сделать малое второе", "Ничего не сломать",
+                Status.IN_PROGRESS, null, null, epic1WithId.getId());
+
+        var sub1WithId = taskManager.createSubtask(subtask1);
+        var sub2WithId = taskManager.createSubtask(subtask2);
+        Epic epicInManager = taskManager.getEpicById(epic1WithId.getId());
+
+        Assertions.assertEquals(List.of(sub1WithId, sub2WithId), taskManager.getEpicSubtasks(epicInManager.getId()));
+    }
 }

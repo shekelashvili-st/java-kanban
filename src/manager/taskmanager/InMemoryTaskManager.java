@@ -182,12 +182,10 @@ public class InMemoryTaskManager implements TaskManager {
             return null;
         }
         List<Integer> subtaskIds = currentEpic.getSubtaskIds();
-        List<Subtask> subtasks = new ArrayList<>();
-        for (int subtaskId : subtaskIds) {
-            Subtask subtaskCopy = new Subtask(this.subtasks.get(subtaskId));
-            subtasks.add(subtaskCopy);
-        }
-        return subtasks;
+        return subtaskIds.stream()
+                .map(subtasks::get)
+                .map(Subtask::new)
+                .toList();
     }
 
     private void updateEpicStatus(int epicId) {
