@@ -10,6 +10,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 
@@ -23,7 +25,7 @@ class InMemoryTaskManagerTest {
 
     @Test
     void shouldAddAndReturnCorrectTask() {
-        var task1 = new Task(null, "Сделать что-то одно", "А потом починить", Status.NEW);
+        var task1 = new Task(null, "Сделать что-то одно", "А потом починить", Status.NEW, null, null);
 
         Task task1WithId = taskManager.createTask(task1);
         Task returnedTask1 = taskManager.getTaskById(1);
@@ -59,7 +61,7 @@ class InMemoryTaskManagerTest {
     void shouldAddAndReturnCorrectSubtask() {
         var epic1 = new Epic(null, "Сделать что-то одно", "А потом починить");
         taskManager.createEpic(epic1);
-        var subtask1 = new Subtask(null, "Сделать что-то одно", "А потом починить", Status.IN_PROGRESS, 1);
+        var subtask1 = new Subtask(null, "Сделать что-то одно", "А потом починить", Status.IN_PROGRESS, null, null, 1);
 
         Subtask subtask1WithId = taskManager.createSubtask(subtask1);
         Subtask returnedSubtask1 = taskManager.getSubtaskById(2);
@@ -76,7 +78,7 @@ class InMemoryTaskManagerTest {
 
     @Test
     void shouldNotChangeTaskStateInManagerFromOutside() {
-        var task1 = new Task(null, "Сделать что-то одно", "А потом починить", Status.NEW);
+        var task1 = new Task(null, "Сделать что-то одно", "А потом починить", Status.NEW, null, null);
 
         Task task1WithId = taskManager.createTask(task1);
         task1.setName("Changed name");
@@ -104,7 +106,7 @@ class InMemoryTaskManagerTest {
     void shouldNotChangeSubtaskStateInManagerFromOutside() {
         var epic1 = new Epic(null, "Сделать что-то одно", "А потом починить");
         taskManager.createEpic(epic1);
-        var subtask1 = new Subtask(null, "Сделать что-то одно", "А потом починить", Status.IN_PROGRESS, 1);
+        var subtask1 = new Subtask(null, "Сделать что-то одно", "А потом починить", Status.IN_PROGRESS, null, null, 1);
 
         Subtask subtask1WithId = taskManager.createSubtask(subtask1);
         Subtask returnedSubtask1 = taskManager.getSubtaskById(2);
@@ -117,8 +119,8 @@ class InMemoryTaskManagerTest {
 
     @Test
     void shouldSaveOldTaskDataInHistory() {
-        var task1 = new Task(null, "Сделать что-то одно", "А потом починить", Status.NEW);
-        var taskChanged = new Task(1, "Changed name", "А потом починить", Status.NEW);
+        var task1 = new Task(null, "Сделать что-то одно", "А потом починить", Status.NEW, null, null);
+        var taskChanged = new Task(1, "Changed name", "А потом починить", Status.NEW, null, null);
 
         taskManager.createTask(task1);
         taskManager.getTaskById(1);
@@ -137,9 +139,9 @@ class InMemoryTaskManagerTest {
         var epic1 = new Epic(null, "Большой эпик 1", "Из двух подзадач");
         Epic epic1WithId = taskManager.createEpic(epic1);
         var subtask1 = new Subtask(null, "Сделать малое одно", "А потом починить",
-                Status.NEW, epic1WithId.getId());
+                Status.NEW, null, null, epic1WithId.getId());
         var subtask2 = new Subtask(null, "Сделать малое второе", "Ничего не сломать",
-                Status.IN_PROGRESS, epic1WithId.getId());
+                Status.IN_PROGRESS, null, null, epic1WithId.getId());
         taskManager.createSubtask(subtask1);
         taskManager.createSubtask(subtask2);
 
@@ -155,9 +157,9 @@ class InMemoryTaskManagerTest {
         var epic1 = new Epic(null, "Большой эпик 1", "Из двух подзадач");
         Epic epic1WithId = taskManager.createEpic(epic1);
         var subtask1 = new Subtask(null, "Сделать малое одно", "А потом починить",
-                Status.IN_PROGRESS, epic1WithId.getId());
+                Status.IN_PROGRESS, null, null, epic1WithId.getId());
         var subtask2 = new Subtask(null, "Сделать малое второе", "Ничего не сломать",
-                Status.DONE, epic1WithId.getId());
+                Status.DONE, null, null, epic1WithId.getId());
 
         taskManager.createSubtask(subtask1);
         taskManager.createSubtask(subtask2);
@@ -171,9 +173,9 @@ class InMemoryTaskManagerTest {
         var epic1 = new Epic(null, "Большой эпик 1", "Из двух подзадач");
         Epic epic1WithId = taskManager.createEpic(epic1);
         var subtask1 = new Subtask(null, "Сделать малое одно", "А потом починить",
-                Status.IN_PROGRESS, epic1WithId.getId());
+                Status.IN_PROGRESS, null, null, epic1WithId.getId());
         var subtask2 = new Subtask(null, "Сделать малое второе", "Ничего не сломать",
-                Status.DONE, epic1WithId.getId());
+                Status.DONE, null, null, epic1WithId.getId());
 
         Subtask subtask1WithId = taskManager.createSubtask(subtask1);
         taskManager.createSubtask(subtask2);
@@ -189,9 +191,9 @@ class InMemoryTaskManagerTest {
         var epic1 = new Epic(null, "Большой эпик 1", "Из двух подзадач");
         Epic epic1WithId = taskManager.createEpic(epic1);
         var subtask1 = new Subtask(null, "Сделать малое одно", "А потом починить",
-                Status.IN_PROGRESS, epic1WithId.getId());
+                Status.IN_PROGRESS, null, null, epic1WithId.getId());
         var subtask2 = new Subtask(null, "Сделать малое второе", "Ничего не сломать",
-                Status.DONE, epic1WithId.getId());
+                Status.DONE, null, null, epic1WithId.getId());
 
         Subtask subtask1WithId = taskManager.createSubtask(subtask1);
         taskManager.createSubtask(subtask2);
@@ -206,9 +208,9 @@ class InMemoryTaskManagerTest {
         var epic1 = new Epic(null, "Большой эпик 1", "Из двух подзадач");
         Epic epic1WithId = taskManager.createEpic(epic1);
         var subtask1 = new Subtask(null, "Сделать малое одно", "А потом починить",
-                Status.IN_PROGRESS, epic1WithId.getId());
+                Status.IN_PROGRESS, null, null, epic1WithId.getId());
         var subtask2 = new Subtask(null, "Сделать малое второе", "Ничего не сломать",
-                Status.DONE, epic1WithId.getId());
+                Status.DONE, null, null, epic1WithId.getId());
 
         Subtask subtask1WithId = taskManager.createSubtask(subtask1);
         Subtask subtask2WithId = taskManager.createSubtask(subtask2);
@@ -229,9 +231,9 @@ class InMemoryTaskManagerTest {
 
     @Test
     void shouldThrowExceptionWhenCallingUpdateWithWrongId() {
-        var task1 = new Task(1, "Сделать что-то одно", "А потом починить", Status.NEW);
+        var task1 = new Task(1, "Сделать что-то одно", "А потом починить", Status.NEW, null, null);
         var epic1 = new Epic(2, "Большой эпик 1", "Из двух подзадач");
-        var subtask1 = new Subtask(3, "Сделать что-то одно", "А потом починить", Status.IN_PROGRESS, 1);
+        var subtask1 = new Subtask(3, "Сделать что-то одно", "А потом починить", Status.IN_PROGRESS, null, null, 1);
 
 
         Assertions.assertThrows(IdNotPresentException.class, () -> taskManager.updateTask(task1));
@@ -241,7 +243,7 @@ class InMemoryTaskManagerTest {
 
     @Test
     void shouldThrowExceptionWhenCreatingSubtaskWithWrongEpicId() {
-        var subtask1 = new Subtask(3, "Сделать что-то одно", "А потом починить", Status.IN_PROGRESS, 1);
+        var subtask1 = new Subtask(3, "Сделать что-то одно", "А потом починить", Status.IN_PROGRESS, null, null, 1);
 
         Assertions.assertThrows(IdNotPresentException.class, () -> taskManager.createSubtask(subtask1));
     }
@@ -251,9 +253,9 @@ class InMemoryTaskManagerTest {
         var epic1 = new Epic(null, "Большой эпик 1", "Из двух подзадач");
         Epic epic1WithId = taskManager.createEpic(epic1);
         var subtask1 = new Subtask(null, "Сделать малое одно", "А потом починить",
-                Status.IN_PROGRESS, epic1WithId.getId());
+                Status.IN_PROGRESS, null, null, epic1WithId.getId());
         var subtask2 = new Subtask(null, "Сделать малое второе", "Ничего не сломать",
-                Status.DONE, epic1WithId.getId());
+                Status.DONE, null, null, epic1WithId.getId());
 
         Subtask subtask1WithId = taskManager.createSubtask(subtask1);
         Subtask subtask2WithId = taskManager.createSubtask(subtask2);
@@ -270,9 +272,9 @@ class InMemoryTaskManagerTest {
         var epic1 = new Epic(null, "Большой эпик 1", "Из двух подзадач");
         Epic epic1WithId = taskManager.createEpic(epic1);
         var subtask1 = new Subtask(null, "Сделать малое одно", "А потом починить",
-                Status.IN_PROGRESS, epic1WithId.getId());
+                Status.IN_PROGRESS, null, null, epic1WithId.getId());
         var subtask2 = new Subtask(null, "Сделать малое второе", "Ничего не сломать",
-                Status.DONE, epic1WithId.getId());
+                Status.DONE, null, null, epic1WithId.getId());
 
         Subtask subtask1WithId = taskManager.createSubtask(subtask1);
         Subtask subtask2WithId = taskManager.createSubtask(subtask2);
@@ -289,9 +291,9 @@ class InMemoryTaskManagerTest {
         var epic1 = new Epic(null, "Большой эпик 1", "Из двух подзадач");
         Epic epic1WithId = taskManager.createEpic(epic1);
         var subtask1 = new Subtask(null, "Сделать малое одно", "А потом починить",
-                Status.IN_PROGRESS, epic1WithId.getId());
+                Status.IN_PROGRESS, null, null, epic1WithId.getId());
         var subtask2 = new Subtask(null, "Сделать малое второе", "Ничего не сломать",
-                Status.DONE, epic1WithId.getId());
+                Status.DONE, null, null, epic1WithId.getId());
 
         Subtask subtask1WithId = taskManager.createSubtask(subtask1);
         Subtask subtask2WithId = taskManager.createSubtask(subtask2);
@@ -308,9 +310,9 @@ class InMemoryTaskManagerTest {
         var epic1 = new Epic(null, "Большой эпик 1", "Из двух подзадач");
         Epic epic1WithId = taskManager.createEpic(epic1);
         var subtask1 = new Subtask(null, "Сделать малое одно", "А потом починить",
-                Status.IN_PROGRESS, epic1WithId.getId());
+                Status.IN_PROGRESS, null, null, epic1WithId.getId());
         var subtask2 = new Subtask(null, "Сделать малое второе", "Ничего не сломать",
-                Status.DONE, epic1WithId.getId());
+                Status.DONE, null, null, epic1WithId.getId());
 
         Subtask subtask1WithId = taskManager.createSubtask(subtask1);
         Subtask subtask2WithId = taskManager.createSubtask(subtask2);
@@ -320,6 +322,132 @@ class InMemoryTaskManagerTest {
         taskManager.deleteEpics();
 
         Assertions.assertEquals(List.of(), taskManager.getHistory());
+    }
+
+    @Test
+    void shouldCalculateEpicTemporalsWhenAddingSubtasks() {
+        var epic1 = new Epic(null, "Большой эпик 1", "Из двух подзадач");
+        Epic epic1WithId = taskManager.createEpic(epic1);
+        Instant start = Instant.now();
+        var subtask1 = new Subtask(null, "Сделать малое одно", "А потом починить",
+                Status.IN_PROGRESS, Duration.ofMinutes(10), start, epic1WithId.getId());
+        var subtask2 = new Subtask(null, "Сделать малое второе", "Ничего не сломать",
+                Status.DONE, Duration.ofMinutes(4), start.plusSeconds(6000L), epic1WithId.getId());
+
+        taskManager.createSubtask(subtask1);
+        taskManager.createSubtask(subtask2);
+        Epic epicInManager = taskManager.getEpicById(epic1WithId.getId());
+
+        Duration expectedDuration = Duration.between(subtask1.getStartTime(),subtask2.getEndTime());
+        Assertions.assertEquals(start, epicInManager.getStartTime());
+        Assertions.assertEquals(expectedDuration, epicInManager.getDuration());
+        Assertions.assertEquals(subtask2.getEndTime(), epicInManager.getEndTime());
+    }
+
+    @Test
+    void shouldCalculateEpicTemporalsWhenDeletingSubtasks() {
+        var epic1 = new Epic(null, "Большой эпик 1", "Из двух подзадач");
+        Epic epic1WithId = taskManager.createEpic(epic1);
+        Instant start = Instant.now();
+        var subtask1 = new Subtask(null, "Сделать малое одно", "А потом починить",
+                Status.IN_PROGRESS, Duration.ofMinutes(10), start, epic1WithId.getId());
+        var subtask2 = new Subtask(null, "Сделать малое второе", "Ничего не сломать",
+                Status.DONE, Duration.ofMinutes(4), start.plusSeconds(6000L), epic1WithId.getId());
+
+        Subtask subtask1WithId = taskManager.createSubtask(subtask1);
+        taskManager.createSubtask(subtask2);
+        taskManager.deleteSubtaskById(subtask1WithId.getId());
+        Epic epicInManager = taskManager.getEpicById(epic1WithId.getId());
+
+        Assertions.assertEquals(start.plusSeconds(6000L), epicInManager.getStartTime());
+        Assertions.assertEquals(Duration.ofMinutes(4), epicInManager.getDuration());
+        Assertions.assertEquals(subtask2.getEndTime(), epicInManager.getEndTime());
+    }
+
+    @Test
+    void shouldCalculateEpicTemporalsWhenUpdatingSubtasks() {
+        var epic1 = new Epic(null, "Большой эпик 1", "Из двух подзадач");
+        Epic epic1WithId = taskManager.createEpic(epic1);
+        Instant start = Instant.now();
+        var subtask1 = new Subtask(null, "Сделать малое одно", "А потом починить",
+                Status.IN_PROGRESS, Duration.ofMinutes(10), start, epic1WithId.getId());
+        var subtask2 = new Subtask(null, "Сделать малое второе", "Ничего не сломать",
+                Status.DONE, Duration.ofMinutes(4), start.plusSeconds(6000L), epic1WithId.getId());
+
+        Subtask subtask1WithId = taskManager.createSubtask(subtask1);
+        taskManager.createSubtask(subtask2);
+        subtask1WithId.setDuration(Duration.ofMinutes(2));
+        subtask1WithId.setStartTime(start.minusSeconds(500L));
+        taskManager.updateSubtask(subtask1WithId);
+        Epic epicInManager = taskManager.getEpicById(epic1WithId.getId());
+
+        Duration expectedDuration = Duration.between(subtask1WithId.getStartTime(),subtask2.getEndTime());
+        Assertions.assertEquals(start.minusSeconds(500L), epicInManager.getStartTime());
+        Assertions.assertEquals(expectedDuration, epicInManager.getDuration());
+        Assertions.assertEquals(subtask2.getEndTime(), epicInManager.getEndTime());
+    }
+
+    @Test
+    void shouldCalculateEpicTemporalsWithNulls() {
+        var epic1 = new Epic(null, "Большой эпик 1", "Из двух подзадач");
+        Epic epic1WithId = taskManager.createEpic(epic1);
+        Instant start = Instant.now();
+        var subtask1 = new Subtask(null, "Сделать малое одно", "А потом починить",
+                Status.IN_PROGRESS, Duration.ofMinutes(10), null, epic1WithId.getId());
+        var subtask2 = new Subtask(null, "Сделать малое второе", "Ничего не сломать",
+                Status.DONE, null, start.plusSeconds(6000L), epic1WithId.getId());
+
+        Subtask subtask1WithId = taskManager.createSubtask(subtask1);
+        Subtask subtask2WithId = taskManager.createSubtask(subtask2);
+        subtask1WithId.setDuration(null);
+        subtask1WithId.setStartTime(null);
+        taskManager.updateSubtask(subtask1WithId);
+        taskManager.deleteSubtaskById(subtask2WithId.getId());
+        Epic epicInManager = taskManager.getEpicById(epic1WithId.getId());
+
+        Assertions.assertNull(epicInManager.getStartTime());
+        Assertions.assertEquals(Duration.ZERO, epicInManager.getDuration());
+        Assertions.assertEquals(subtask1WithId.getEndTime(), epicInManager.getEndTime());
+    }
+
+    @Test
+    void shouldReturnPrioritizedTasks() {
+        var epic1 = new Epic(null, "Большой эпик 1", "Из двух подзадач");
+        Epic epic1WithId = taskManager.createEpic(epic1);
+        Instant start = Instant.now();
+        var subtask1 = new Subtask(null, "Сделать малое одно", "А потом починить",
+                Status.IN_PROGRESS, Duration.ofMinutes(10), start, epic1WithId.getId());
+        var subtask2 = new Subtask(null, "Сделать малое второе", "Ничего не сломать",
+                Status.DONE, Duration.ofMinutes(4), start.plusSeconds(6000L), epic1WithId.getId());
+        var task1 = new Task(null, "Сделать", "1",
+                Status.DONE, Duration.ofMinutes(4), start.minusSeconds(6000L));
+
+        Task task1WithId = taskManager.createTask(task1);
+        Subtask subtask2WithId = taskManager.createSubtask(subtask2);
+        Subtask subtask1WithId = taskManager.createSubtask(subtask1);
+        subtask1WithId.setDuration(Duration.ofMinutes(2));
+        subtask1WithId.setStartTime(start.minusSeconds(500L));
+        taskManager.updateSubtask(subtask1WithId);
+
+        Assertions.assertEquals(List.of(task1WithId, subtask1WithId, subtask2WithId), taskManager.getPrioritizedTasks());
+    }
+
+    @Test
+    void shouldReturnPrioritizedTasksWithNulls() {
+        var epic1 = new Epic(null, "Большой эпик 1", "Из двух подзадач");
+        Epic epic1WithId = taskManager.createEpic(epic1);
+        Instant start = Instant.now();
+        var subtask1 = new Subtask(null, "Сделать малое одно", "А потом починить",
+                Status.IN_PROGRESS, Duration.ofMinutes(10), null, epic1WithId.getId());
+        var subtask2 = new Subtask(null, "Сделать малое второе", "Ничего не сломать",
+                Status.DONE, null, start.plusSeconds(6000L), epic1WithId.getId());
+
+        Subtask subtask2WithId = taskManager.createSubtask(subtask2);
+        Subtask subtask1WithId = taskManager.createSubtask(subtask1);
+        subtask1WithId.setDuration(Duration.ofMinutes(2));
+        taskManager.updateSubtask(subtask1WithId);
+
+        Assertions.assertEquals(List.of(subtask2WithId), taskManager.getPrioritizedTasks());
     }
 }
 

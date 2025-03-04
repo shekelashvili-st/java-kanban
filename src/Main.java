@@ -14,12 +14,12 @@ public class Main {
     public static void main(String[] args) {
         TaskManager manager = Managers.getDefault();
 
-        Task task1 = new Task(null, "New task 1", "Description 1", Status.NEW);
-        Task task2 = new Task(null, "New task 2", "Description 2", Status.NEW);
+        Task task1 = new Task(null, "New task 1", "Description 1", Status.NEW, null, null);
+        Task task2 = new Task(null, "New task 2", "Description 2", Status.NEW, null, null);
         Epic epic1 = new Epic(null, "New epic 1", "Description 1");
-        Subtask subtask1 = new Subtask(null, "New subtask 1", "Description 1", Status.NEW, 3);
-        Subtask subtask2 = new Subtask(null, "New subtask 2", "Description 2", Status.NEW, 3);
-        Subtask subtask3 = new Subtask(null, "New subtask 3", "Description 3", Status.NEW, 3);
+        Subtask subtask1 = new Subtask(null, "New subtask 1", "Description 1", Status.NEW, null, null, 3);
+        Subtask subtask2 = new Subtask(null, "New subtask 2", "Description 2", Status.NEW, null, null, 3);
+        Subtask subtask3 = new Subtask(null, "New subtask 3", "Description 3", Status.NEW, null, null, 3);
         Epic epic2 = new Epic(null, "New epic 2", "Description 2");
 
         var task1Id = manager.createTask(task1);

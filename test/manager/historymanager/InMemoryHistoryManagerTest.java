@@ -17,7 +17,7 @@ class InMemoryHistoryManagerTest {
 
     @Test
     void shouldAddNewTasks() {
-        var task1 = new Task(null, "Сделать что-то одно", "А потом починить", Status.NEW);
+        var task1 = new Task(null, "Сделать что-то одно", "А потом починить", Status.NEW, null, null);
         var epic1 = new Epic(2, "Большой эпик 1", "Из двух подзадач");
 
         historyManager.add(task1);
@@ -29,7 +29,7 @@ class InMemoryHistoryManagerTest {
 
     @Test
     void shouldUpdateLinksCorrectlyWhenDeletingFromMiddle() {
-        var task1 = new Task(1, "Сделать что-то одно", "А потом починить", Status.NEW);
+        var task1 = new Task(1, "Сделать что-то одно", "А потом починить", Status.NEW, null, null);
         var epic1 = new Epic(2, "Большой эпик 1", "Из двух подзадач");
         var epic2 = new Epic(4, "Большой эпик 2", "Из двух подзадач");
         var epic3 = new Epic(3, "Большой эпик 3", "Из двух подзадач");
@@ -47,7 +47,7 @@ class InMemoryHistoryManagerTest {
 
     @Test
     void shouldUpdateLinksCorrectlyWhenDeletingFromHeadAndTail() {
-        var task1 = new Task(1, "Сделать что-то одно", "А потом починить", Status.NEW);
+        var task1 = new Task(1, "Сделать что-то одно", "А потом починить", Status.NEW, null, null);
         var epic1 = new Epic(2, "Большой эпик 1", "Из двух подзадач");
         var epic2 = new Epic(4, "Большой эпик 2", "Из двух подзадач");
         var epic3 = new Epic(3, "Большой эпик 3", "Из двух подзадач");
@@ -65,7 +65,7 @@ class InMemoryHistoryManagerTest {
 
     @Test
     void shouldUpdateLinksCorrectlyAfterClearingTheList() {
-        var task1 = new Task(1, "Сделать что-то одно", "А потом починить", Status.NEW);
+        var task1 = new Task(1, "Сделать что-то одно", "А потом починить", Status.NEW, null, null);
         var epic1 = new Epic(2, "Большой эпик 1", "Из двух подзадач");
         var epic2 = new Epic(4, "Большой эпик 2", "Из двух подзадач");
         var epic3 = new Epic(3, "Большой эпик 3", "Из двух подзадач");
@@ -83,7 +83,7 @@ class InMemoryHistoryManagerTest {
 
     @Test
     void shouldHandleDuplicatesCorrectly() {
-        var task1 = new Task(1, "Сделать что-то одно", "А потом починить", Status.NEW);
+        var task1 = new Task(1, "Сделать что-то одно", "А потом починить", Status.NEW, null, null);
         var epic1 = new Epic(2, "Большой эпик 1", "Из двух подзадач");
         var epic2 = new Epic(4, "Большой эпик 2", "Из двух подзадач");
 

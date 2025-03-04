@@ -12,6 +12,8 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Duration;
+import java.time.Instant;
 
 class FileBackedTaskManagerTest {
     private static TaskManager taskManager;
@@ -23,15 +25,15 @@ class FileBackedTaskManagerTest {
         tempFile.toFile().deleteOnExit();
 
         taskManager = new FileBackedTaskManager(Managers.getDefaultHistory(), tempFile);
-
-        var task1 = new Task(null, "Сделать что-то одно", "А потом починить", Status.NEW);
+        Instant start = Instant.now();
+        var task1 = new Task(null, "Сделать что-то одно", "А потом починить", Status.NEW, Duration.ofDays(2), start);
         taskManager.createTask(task1);
         var epic1 = new Epic(null, "Большой эпик 1", "Из двух подзадач");
         Epic epic1WithId = taskManager.createEpic(epic1);
         var subtask1 = new Subtask(null, "Сделать малое одно", "А потом починить",
-                Status.NEW, epic1WithId.getId());
+                Status.NEW, Duration.ofMinutes(10L), null, epic1WithId.getId());
         var subtask2 = new Subtask(null, "Сделать малое второе", "Ничего не сломать",
-                Status.IN_PROGRESS, epic1WithId.getId());
+                Status.IN_PROGRESS, null, start.plusSeconds(6000L), epic1WithId.getId());
         taskManager.createSubtask(subtask1);
         taskManager.createSubtask(subtask2);
     }
@@ -67,7 +69,7 @@ class FileBackedTaskManagerTest {
 
     @Test
     void createTaskShouldUpdateSaveFile() {
-        Task newTask = new Task(null, "New task", "Description", Status.NEW);
+        Task newTask = new Task(null, "New task", "Description", Status.NEW, null, null);
 
         taskManager.createTask(newTask);
         TaskManager newManager = Managers.loadTaskManagerFromFile(tempFile);
@@ -157,7 +159,7 @@ class FileBackedTaskManagerTest {
 
     @Test
     void createSubtaskShouldUpdateSaveFile() {
-        Subtask newSubtask = new Subtask(null, "New subtask", "Description", Status.NEW, 2);
+        Subtask newSubtask = new Subtask(null, "New subtask", "Description", Status.NEW, null, null, 2);
 
         taskManager.createSubtask(newSubtask);
         TaskManager newManager = Managers.loadTaskManagerFromFile(tempFile);

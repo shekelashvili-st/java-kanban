@@ -1,10 +1,14 @@
 package manager.tasks;
 
+import java.time.Duration;
+import java.time.Instant;
+
 public class Subtask extends Task {
     private final Integer epicId;
 
-    public Subtask(Integer id, String name, String description, Status status, Integer epicId) {
-        super(id, name, description, status);
+    public Subtask(Integer id, String name, String description, Status status,
+                   Duration duration, Instant startTime, Integer epicId) {
+        super(id, name, description, status, duration, startTime);
         this.epicId = epicId;
     }
 
@@ -13,6 +17,8 @@ public class Subtask extends Task {
                 subtask.getName(),
                 subtask.getDescription(),
                 subtask.getStatus(),
+                subtask.getDuration(),
+                subtask.getStartTime(),
                 subtask.getEpicId());
     }
 
@@ -34,6 +40,8 @@ public class Subtask extends Task {
                 + getName() + ", "
                 + getStatus() + ", "
                 + getDescription() + ", "
+                + getDuration().toMinutes() + ", "
+                + getStartTime() + ", "
                 + getEpicId();
     }
 }

@@ -1,25 +1,35 @@
 package manager.tasks;
 
+import java.time.Instant;
+import java.time.Duration;
 import java.util.Objects;
+import java.util.Optional;
 
 public class Task {
     private final Integer id;
     private String name;
     private String description;
     private Status status;
+    private Duration duration;
+    private Instant startTime;
 
-    public Task(Integer id, String name, String description, Status status) {
+    public Task(Integer id, String name, String description, Status status,
+                Duration duration, Instant startTime) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.status = status;
+        this.duration = duration == null ? Duration.ZERO : duration;
+        this.startTime = startTime;
     }
 
     public Task(Task task) {
         this(task.getId(),
                 task.getName(),
                 task.getDescription(),
-                task.getStatus());
+                task.getStatus(),
+                task.getDuration(),
+                task.getStartTime());
     }
 
     @Override
@@ -77,6 +87,28 @@ public class Task {
                 + TaskTypes.TASK + ", "
                 + getName() + ", "
                 + getStatus() + ", "
-                + getDescription() + ", ";
+                + getDescription() + ", "
+                + getDuration().toMinutes() + ", "
+                + getStartTime() + ", ";
+    }
+
+    public Duration getDuration() {
+        return duration;
+    }
+
+    public void setDuration(Duration duration) {
+        this.duration = duration == null ? Duration.ZERO : duration;
+    }
+
+    public Instant getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(Instant startTime) {
+        this.startTime = startTime;
+    }
+
+    public Instant getEndTime() {
+        return startTime == null ? null : startTime.plus(duration);
     }
 }
