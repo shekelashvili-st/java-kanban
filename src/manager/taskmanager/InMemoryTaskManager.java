@@ -1,14 +1,15 @@
 package manager.taskmanager;
 
 import manager.exception.IdNotPresentException;
+import manager.exception.TaskCollisionException;
 import manager.historymanager.HistoryManager;
 import manager.tasks.Epic;
 import manager.tasks.Status;
 import manager.tasks.Subtask;
 import manager.tasks.Task;
 
-import java.time.Instant;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.*;
 
 public class InMemoryTaskManager implements TaskManager {
@@ -35,7 +36,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void deleteTasks() {
-        for (Map.Entry<Integer, Task> entry: tasks.entrySet()) {
+        for (Map.Entry<Integer, Task> entry : tasks.entrySet()) {
             historyManager.remove(entry.getKey());
             Task task = entry.getValue();
             if (task.getStartTime() != null) {
@@ -59,9 +60,12 @@ public class InMemoryTaskManager implements TaskManager {
     public Task createTask(Task task) {
         increaseCount();
         var newTask = new Task(count, task.getName(), task.getDescription(), task.getStatus(),
-                task.getDuration(),task.getStartTime());
+                task.getDuration(), task.getStartTime());
         tasks.put(newTask.getId(), newTask);
         if (task.getStartTime() != null) {
+            if (checkCollisionsInList(priorityList, newTask)) {
+                throw new TaskCollisionException("Task collision detected", newTask);
+            }
             priorityList.add(newTask);
         }
         return new Task(newTask);
@@ -81,12 +85,15 @@ public class InMemoryTaskManager implements TaskManager {
 
         Instant newStartTime = task.getStartTime();
         // Preserving TreeSet integrity
-        if (!Objects.equals(task.getStartTime(),currentTask.getStartTime())) {
+        if (!Objects.equals(task.getStartTime(), currentTask.getStartTime())) {
             if (currentTask.getStartTime() != null) {
                 priorityList.remove(currentTask);
             }
             currentTask.setStartTime(newStartTime);
             if (newStartTime != null) {
+                if (checkCollisionsInList(priorityList, currentTask)) {
+                    throw new TaskCollisionException("Task collision detected", currentTask);
+                }
                 priorityList.add(currentTask);
             }
         }
@@ -277,6 +284,9 @@ public class InMemoryTaskManager implements TaskManager {
                 subtask.getDuration(), subtask.getStartTime(), epicId);
         subtasks.put(newSubtask.getId(), newSubtask);
         if (newSubtask.getStartTime() != null) {
+            if (checkCollisionsInList(priorityList, newSubtask)) {
+                throw new TaskCollisionException("Task collision detected", newSubtask);
+            }
             priorityList.add(newSubtask);
         }
         addSubtaskToEpic(epicId, newSubtask.getId());
@@ -312,6 +322,9 @@ public class InMemoryTaskManager implements TaskManager {
             }
             currentSubtask.setStartTime(newStartTime);
             if (newStartTime != null) {
+                if (checkCollisionsInList(priorityList, currentSubtask)) {
+                    throw new TaskCollisionException("Task collision detected", currentSubtask);
+                }
                 priorityList.add(currentSubtask);
             }
             updateEpicTemporal(epic.getId());
@@ -371,5 +384,19 @@ public class InMemoryTaskManager implements TaskManager {
     // Utility methods
     private void increaseCount() {
         count++;
+    }
+
+    private boolean checkCollision(Task task, Task other) {
+        Instant existingStart = task.getStartTime();
+        Instant newStart = other.getStartTime();
+        if (existingStart.isAfter(newStart) || existingStart.equals(newStart)) {
+            return other.getEndTime().isAfter(existingStart);
+        } else {
+            return task.getEndTime().isAfter(newStart);
+        }
+    }
+
+    private boolean checkCollisionsInList(Collection<Task> orderedList, Task task) {
+        return orderedList.stream().anyMatch(listTask -> checkCollision(listTask, task));
     }
 }

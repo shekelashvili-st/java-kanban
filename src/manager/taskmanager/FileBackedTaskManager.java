@@ -63,7 +63,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                 }
             }
             manager.count = maxId;
-        } catch (IOException e) {
+        } catch (Throwable e) {
             throw new TaskManagerLoadException("Failed to load task manager state from file", file);
         }
         return manager;

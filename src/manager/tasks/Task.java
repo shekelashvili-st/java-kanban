@@ -1,9 +1,8 @@
 package manager.tasks;
 
-import java.time.Instant;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.Objects;
-import java.util.Optional;
 
 public class Task {
     private final Integer id;
