@@ -332,7 +332,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
         taskManager.createSubtask(subtask2);
         Epic epicInManager = taskManager.getEpicById(epic1WithId.getId());
 
-        Duration expectedDuration = Duration.between(subtask1.getStartTime(), subtask2.getEndTime());
+        Duration expectedDuration = subtask1.getDuration().plus(subtask2.getDuration());
         Assertions.assertEquals(start, epicInManager.getStartTime());
         Assertions.assertEquals(expectedDuration, epicInManager.getDuration());
         Assertions.assertEquals(subtask2.getEndTime(), epicInManager.getEndTime());
@@ -369,13 +369,13 @@ public abstract class TaskManagerTest<T extends TaskManager> {
                 Status.DONE, Duration.ofMinutes(4), start.plusSeconds(6000L), epic1WithId.getId());
 
         Subtask subtask1WithId = taskManager.createSubtask(subtask1);
-        taskManager.createSubtask(subtask2);
+        Subtask subtask2WithId = taskManager.createSubtask(subtask2);
         subtask1WithId.setDuration(Duration.ofMinutes(2));
         subtask1WithId.setStartTime(start.minusSeconds(500L));
         taskManager.updateSubtask(subtask1WithId);
         Epic epicInManager = taskManager.getEpicById(epic1WithId.getId());
 
-        Duration expectedDuration = Duration.between(subtask1WithId.getStartTime(), subtask2.getEndTime());
+        Duration expectedDuration = subtask1WithId.getDuration().plus(subtask2WithId.getDuration());
         Assertions.assertEquals(start.minusSeconds(500L), epicInManager.getStartTime());
         Assertions.assertEquals(expectedDuration, epicInManager.getDuration());
         Assertions.assertEquals(subtask2.getEndTime(), epicInManager.getEndTime());

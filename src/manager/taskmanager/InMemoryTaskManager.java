@@ -58,14 +58,16 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public Task createTask(Task task) {
+        if (task.getStartTime() != null) {
+            if (checkCollisionsInList(priorityList, task)) {
+                throw new TaskCollisionException("Task collision detected", task);
+            }
+        }
         increaseCount();
         var newTask = new Task(count, task.getName(), task.getDescription(), task.getStatus(),
                 task.getDuration(), task.getStartTime());
         tasks.put(newTask.getId(), newTask);
         if (task.getStartTime() != null) {
-            if (checkCollisionsInList(priorityList, newTask)) {
-                throw new TaskCollisionException("Task collision detected", newTask);
-            }
             priorityList.add(newTask);
         }
         return new Task(newTask);
@@ -222,8 +224,8 @@ public class InMemoryTaskManager implements TaskManager {
                 if (endTime.isAfter(latestEndTime)) {
                     latestEndTime = endTime;
                 }
-                totalDuration = Duration.between(earliestStartTime, latestEndTime);
             }
+            totalDuration = totalDuration.plus(subtask.getDuration());
         }
 
         epic.setDuration(totalDuration);
@@ -276,15 +278,17 @@ public class InMemoryTaskManager implements TaskManager {
         if (!epics.containsKey(epicId)) {
             throw new IdNotPresentException(epicId);
         }
+        if (subtask.getStartTime() != null) {
+            if (checkCollisionsInList(priorityList, subtask)) {
+                throw new TaskCollisionException("Task collision detected", subtask);
+            }
+        }
         increaseCount();
         var newSubtask = new Subtask(count,
                 subtask.getName(), subtask.getDescription(), subtask.getStatus(),
                 subtask.getDuration(), subtask.getStartTime(), epicId);
         subtasks.put(newSubtask.getId(), newSubtask);
-        if (newSubtask.getStartTime() != null) {
-            if (checkCollisionsInList(priorityList, newSubtask)) {
-                throw new TaskCollisionException("Task collision detected", newSubtask);
-            }
+        if (subtask.getStartTime() != null) {
             priorityList.add(newSubtask);
         }
         addSubtaskToEpic(epicId, newSubtask.getId());
@@ -313,7 +317,7 @@ public class InMemoryTaskManager implements TaskManager {
         Duration newDuration = subtask.getDuration();
         Instant newStartTime = subtask.getStartTime();
         if (!(Objects.equals(newDuration, currentSubtask.getDuration())
-                || Objects.equals(newStartTime, currentSubtask.getStartTime()))) {
+                && Objects.equals(newStartTime, currentSubtask.getStartTime()))) {
             currentSubtask.setDuration(newDuration);
             if (currentSubtask.getStartTime() != null) {
                 priorityList.remove(currentSubtask);
