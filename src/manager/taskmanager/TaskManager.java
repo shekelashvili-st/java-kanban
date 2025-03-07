@@ -50,4 +50,7 @@ public interface TaskManager {
 
     // manager.historymanager.HistoryManager methods
     List<Task> getHistory();
+
+    // prioritized output method
+    List<Task> getPrioritizedTasks();
 }

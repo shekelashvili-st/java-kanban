@@ -9,6 +9,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.List;
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
@@ -31,15 +33,20 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                 Integer id = Integer.parseInt(tokens[0]);
                 TaskTypes type = Enum.valueOf(TaskTypes.class, tokens[1]);
                 String name = tokens[2];
-                String description = tokens[4];
                 Status status = Enum.valueOf(Status.class, tokens[3]);
+                String description = tokens[4];
+                Duration duration = Duration.ofMinutes(Integer.parseInt(tokens[5]));
+                Instant startTime = null;
+                if (!tokens[6].equals("null")) {
+                    startTime = Instant.parse(tokens[6]);
+                }
 
                 if (id > maxId) {
                     maxId = id;
                 }
                 switch (type) {
                     case TASK -> {
-                        Task task = new Task(id, name, description, status);
+                        Task task = new Task(id, name, description, status, duration, startTime);
                         manager.tasks.put(task.getId(), task);
                     }
                     case EPIC -> {
@@ -47,16 +54,16 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                         manager.epics.put(epic.getId(), epic);
                     }
                     case SUBTASK -> {
-                        Integer epicId = Integer.parseInt(tokens[5]);
+                        Integer epicId = Integer.parseInt(tokens[7]);
                         Subtask subtask = new Subtask(id, name, description,
-                                status, epicId);
+                                status, duration, startTime, epicId);
                         manager.subtasks.put(subtask.getId(), subtask);
                         manager.addSubtaskToEpic(subtask.getEpicId(), subtask.getId());
                     }
                 }
             }
             manager.count = maxId;
-        } catch (IOException e) {
+        } catch (Throwable e) {
             throw new TaskManagerLoadException("Failed to load task manager state from file", file);
         }
         return manager;
