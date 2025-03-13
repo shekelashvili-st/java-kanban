@@ -3,20 +3,20 @@ package http.handlers;
 import com.google.gson.Gson;
 import com.sun.net.httpserver.HttpExchange;
 import manager.exception.IdNotPresentException;
-import manager.exception.TaskCollisionException;
 import manager.taskmanager.TaskManager;
-import manager.tasks.Task;
+import manager.tasks.Epic;
+import manager.tasks.Subtask;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-public class HttpTasksHandler extends BaseHttpHandler {
+public class HttpEpicsHandler extends BaseHttpHandler {
     private final TaskManager taskManager;
     private final Gson gson;
 
-    public HttpTasksHandler(TaskManager taskManager, Gson gson) {
+    public HttpEpicsHandler(TaskManager taskManager, Gson gson) {
         this.taskManager = taskManager;
         this.gson = gson;
     }
@@ -31,18 +31,28 @@ public class HttpTasksHandler extends BaseHttpHandler {
             case "GET" -> {
                 if (splitPath.length == 3) {
                     int id;
-                    Task responseTask = null;
+                    Epic responseEpic = null;
                     try {
                         id = Integer.parseInt(splitPath[2]);
-                        responseTask = taskManager.getTaskById(id);
+                        responseEpic = taskManager.getEpicById(id);
                     } catch (NumberFormatException | IdNotPresentException e) {
                         sendNotFound(exchange);
                     }
-                    String json = gson.toJson(responseTask);
+                    String json = gson.toJson(responseEpic);
                     sendGetSuccess(exchange, json);
                 } else if (splitPath.length == 2) {
-                    List<Task> responseTasks = taskManager.getTasks();
-                    String json = gson.toJson(responseTasks);
+                    List<Epic> responseEpics = taskManager.getEpics();
+                    String json = gson.toJson(responseEpics);
+                    sendGetSuccess(exchange, json);
+                } else if (splitPath.length == 4 && splitPath[3].equals("subtasks")) {
+                    int id = -1;
+                    try {
+                        id = Integer.parseInt(splitPath[2]);
+                    } catch (NumberFormatException | IdNotPresentException e) {
+                        sendNotFound(exchange);
+                    }
+                    List<Subtask> responseSubtasks = taskManager.getEpicSubtasks(id);
+                    String json = gson.toJson(responseSubtasks);
                     sendGetSuccess(exchange, json);
                 } else {
                     sendNotFound(exchange);
@@ -53,17 +63,15 @@ public class HttpTasksHandler extends BaseHttpHandler {
                     InputStream inputStream = exchange.getRequestBody();
                     String body = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
                     try {
-                        Task postTask = gson.fromJson(body, Task.class);
-                        if (postTask.getId() == null) {
-                            taskManager.createTask(postTask);
+                        Epic postEpic = gson.fromJson(body, Epic.class);
+                        if (postEpic.getId() == null) {
+                            taskManager.createEpic(postEpic);
                         } else {
-                            taskManager.updateTask(postTask);
+                            taskManager.updateEpic(postEpic);
                         }
                         sendCreateUpdateSuccess(exchange);
                     } catch (IdNotPresentException e) {
                         sendNotFound(exchange);
-                    } catch (TaskCollisionException e) {
-                        sendHasCollisions(exchange);
                     } catch (Throwable e) {
                         sendServerError(exchange);
                     }
@@ -76,13 +84,13 @@ public class HttpTasksHandler extends BaseHttpHandler {
                     int id;
                     try {
                         id = Integer.parseInt(splitPath[2]);
-                        taskManager.deleteTaskById(id);
+                        taskManager.deleteEpicById(id);
                     } catch (NumberFormatException e) {
                         sendNotFound(exchange);
                     }
                     sendDeleteSuccess(exchange);
                 } else if (splitPath.length == 2) {
-                    taskManager.deleteTasks();
+                    taskManager.deleteEpics();
                     sendDeleteSuccess(exchange);
                 } else {
                     sendNotFound(exchange);

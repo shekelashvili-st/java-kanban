@@ -12,7 +12,7 @@ public class Task {
     private Duration duration;
     private Instant startTime;
 
-    private Task() {
+    Task() {
         this.id = null;
         this.name = null;
         this.description = null;

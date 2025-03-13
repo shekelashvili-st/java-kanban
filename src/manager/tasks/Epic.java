@@ -12,6 +12,13 @@ public class Epic extends Task {
     private final Map<Status, Integer> subtaskStatus;
     private Instant endTime;
 
+    private Epic() {
+        super();
+        this.subtaskIds = new ArrayList<>();
+        this.subtaskStatus = new HashMap<>();
+        endTime = null;
+    }
+
     public Epic(Integer id, String name, String description) {
         super(id, name, description, Status.NEW, Duration.ZERO, null);
         this.subtaskIds = new ArrayList<>();

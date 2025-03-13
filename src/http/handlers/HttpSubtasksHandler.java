@@ -5,18 +5,18 @@ import com.sun.net.httpserver.HttpExchange;
 import manager.exception.IdNotPresentException;
 import manager.exception.TaskCollisionException;
 import manager.taskmanager.TaskManager;
-import manager.tasks.Task;
+import manager.tasks.Subtask;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-public class HttpTasksHandler extends BaseHttpHandler {
+public class HttpSubtasksHandler extends BaseHttpHandler {
     private final TaskManager taskManager;
     private final Gson gson;
 
-    public HttpTasksHandler(TaskManager taskManager, Gson gson) {
+    public HttpSubtasksHandler(TaskManager taskManager, Gson gson) {
         this.taskManager = taskManager;
         this.gson = gson;
     }
@@ -31,18 +31,18 @@ public class HttpTasksHandler extends BaseHttpHandler {
             case "GET" -> {
                 if (splitPath.length == 3) {
                     int id;
-                    Task responseTask = null;
+                    Subtask responseSubtask = null;
                     try {
                         id = Integer.parseInt(splitPath[2]);
-                        responseTask = taskManager.getTaskById(id);
+                        responseSubtask = taskManager.getSubtaskById(id);
                     } catch (NumberFormatException | IdNotPresentException e) {
                         sendNotFound(exchange);
                     }
-                    String json = gson.toJson(responseTask);
+                    String json = gson.toJson(responseSubtask);
                     sendGetSuccess(exchange, json);
                 } else if (splitPath.length == 2) {
-                    List<Task> responseTasks = taskManager.getTasks();
-                    String json = gson.toJson(responseTasks);
+                    List<Subtask> responseSubtasks = taskManager.getSubtasks();
+                    String json = gson.toJson(responseSubtasks);
                     sendGetSuccess(exchange, json);
                 } else {
                     sendNotFound(exchange);
@@ -53,11 +53,11 @@ public class HttpTasksHandler extends BaseHttpHandler {
                     InputStream inputStream = exchange.getRequestBody();
                     String body = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
                     try {
-                        Task postTask = gson.fromJson(body, Task.class);
-                        if (postTask.getId() == null) {
-                            taskManager.createTask(postTask);
+                        Subtask postSubtask = gson.fromJson(body, Subtask.class);
+                        if (postSubtask.getId() == null) {
+                            taskManager.createSubtask(postSubtask);
                         } else {
-                            taskManager.updateTask(postTask);
+                            taskManager.updateSubtask(postSubtask);
                         }
                         sendCreateUpdateSuccess(exchange);
                     } catch (IdNotPresentException e) {
@@ -76,13 +76,13 @@ public class HttpTasksHandler extends BaseHttpHandler {
                     int id;
                     try {
                         id = Integer.parseInt(splitPath[2]);
-                        taskManager.deleteTaskById(id);
+                        taskManager.deleteSubtaskById(id);
                     } catch (NumberFormatException e) {
                         sendNotFound(exchange);
                     }
                     sendDeleteSuccess(exchange);
                 } else if (splitPath.length == 2) {
-                    taskManager.deleteTasks();
+                    taskManager.deleteSubtasks();
                     sendDeleteSuccess(exchange);
                 } else {
                     sendNotFound(exchange);
