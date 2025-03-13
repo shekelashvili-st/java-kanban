@@ -218,9 +218,9 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     @Test
     void shouldReturnExceptionWhenCallingGetWithWrongId() {
         Assertions.assertThrows(IdNotPresentException.class, () -> taskManager.getEpicById(1));
-        Assertions.assertThrows(IdNotPresentException.class, () ->taskManager.getTaskById(1));
-        Assertions.assertThrows(IdNotPresentException.class, () ->taskManager.getSubtaskById(1));
-        Assertions.assertThrows(IdNotPresentException.class, () ->taskManager.getEpicSubtasks(1));
+        Assertions.assertThrows(IdNotPresentException.class, () -> taskManager.getTaskById(1));
+        Assertions.assertThrows(IdNotPresentException.class, () -> taskManager.getSubtaskById(1));
+        Assertions.assertThrows(IdNotPresentException.class, () -> taskManager.getEpicSubtasks(1));
     }
 
     @Test
