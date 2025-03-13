@@ -12,6 +12,15 @@ public class Task {
     private Duration duration;
     private Instant startTime;
 
+    private Task() {
+        this.id = null;
+        this.name = null;
+        this.description = null;
+        this.status = Status.NEW;
+        this.duration = Duration.ZERO;
+        this.startTime = null;
+    }
+
     public Task(Integer id, String name, String description, Status status,
                 Duration duration, Instant startTime) {
         this.id = id;
