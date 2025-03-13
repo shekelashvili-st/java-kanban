@@ -27,68 +27,63 @@ public class HttpSubtasksHandler extends BaseHttpHandler {
         String path = exchange.getRequestURI().getPath();
         String[] splitPath = path.split("/");
 
-        switch (method) {
-            case "GET" -> {
-                if (splitPath.length == 3) {
-                    int id;
-                    Subtask responseSubtask = null;
-                    try {
-                        id = Integer.parseInt(splitPath[2]);
-                        responseSubtask = taskManager.getSubtaskById(id);
-                    } catch (NumberFormatException | IdNotPresentException e) {
-                        sendNotFound(exchange);
-                    }
-                    String json = gson.toJson(responseSubtask);
-                    sendGetSuccess(exchange, json);
-                } else if (splitPath.length == 2) {
-                    List<Subtask> responseSubtasks = taskManager.getSubtasks();
-                    String json = gson.toJson(responseSubtasks);
-                    sendGetSuccess(exchange, json);
-                } else {
-                    sendNotFound(exchange);
-                }
+        try {
+            switch (method) {
+                case "GET" -> handleGet(exchange, splitPath);
+                case "POST" -> handlePost(exchange, splitPath);
+                case "DELETE" -> handleDelete(exchange, splitPath);
+                default -> sendNotFound(exchange);
             }
-            case "POST" -> {
-                if (splitPath.length == 2) {
-                    InputStream inputStream = exchange.getRequestBody();
-                    String body = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
-                    try {
-                        Subtask postSubtask = gson.fromJson(body, Subtask.class);
-                        if (postSubtask.getId() == null) {
-                            taskManager.createSubtask(postSubtask);
-                        } else {
-                            taskManager.updateSubtask(postSubtask);
-                        }
-                        sendCreateUpdateSuccess(exchange);
-                    } catch (IdNotPresentException e) {
-                        sendNotFound(exchange);
-                    } catch (TaskCollisionException e) {
-                        sendHasCollisions(exchange);
-                    } catch (Throwable e) {
-                        sendServerError(exchange);
-                    }
-                } else {
-                    sendNotFound(exchange);
-                }
+        } catch (NumberFormatException | IdNotPresentException e) {
+            sendNotFound(exchange);
+        } catch (TaskCollisionException e) {
+            sendHasCollisions(exchange);
+        } catch (Throwable e) {
+            sendServerError(exchange);
+        }
+    }
+
+    private void handleGet(HttpExchange exchange, String[] splitPath) throws IOException {
+        if (splitPath.length == 3) {
+            int id = Integer.parseInt(splitPath[2]);
+            Subtask responseSubtask = taskManager.getSubtaskById(id);
+            String json = gson.toJson(responseSubtask);
+            sendGetSuccess(exchange, json);
+        } else if (splitPath.length == 2) {
+            List<Subtask> responseSubtasks = taskManager.getSubtasks();
+            String json = gson.toJson(responseSubtasks);
+            sendGetSuccess(exchange, json);
+        } else {
+            sendNotFound(exchange);
+        }
+    }
+
+    private void handlePost(HttpExchange exchange, String[] splitPath) throws IOException {
+        if (splitPath.length == 2) {
+            InputStream inputStream = exchange.getRequestBody();
+            String body = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
+            Subtask postSubtask = gson.fromJson(body, Subtask.class);
+            if (postSubtask.getId() == null) {
+                taskManager.createSubtask(postSubtask);
+            } else {
+                taskManager.updateSubtask(postSubtask);
             }
-            case "DELETE" -> {
-                if (splitPath.length == 3) {
-                    int id;
-                    try {
-                        id = Integer.parseInt(splitPath[2]);
-                        taskManager.deleteSubtaskById(id);
-                    } catch (NumberFormatException e) {
-                        sendNotFound(exchange);
-                    }
-                    sendDeleteSuccess(exchange);
-                } else if (splitPath.length == 2) {
-                    taskManager.deleteSubtasks();
-                    sendDeleteSuccess(exchange);
-                } else {
-                    sendNotFound(exchange);
-                }
-            }
-            default -> sendNotFound(exchange);
+            sendCreateUpdateSuccess(exchange);
+        } else {
+            sendNotFound(exchange);
+        }
+    }
+
+    private void handleDelete(HttpExchange exchange, String[] splitPath) throws IOException {
+        if (splitPath.length == 3) {
+            int id = Integer.parseInt(splitPath[2]);
+            taskManager.deleteSubtaskById(id);
+            sendDeleteSuccess(exchange);
+        } else if (splitPath.length == 2) {
+            taskManager.deleteSubtasks();
+            sendDeleteSuccess(exchange);
+        } else {
+            sendNotFound(exchange);
         }
     }
 }
