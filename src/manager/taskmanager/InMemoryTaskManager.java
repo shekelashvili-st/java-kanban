@@ -50,7 +50,7 @@ public class InMemoryTaskManager implements TaskManager {
     public Task getTaskById(int id) {
         Task taskInManager = tasks.get(id);
         if (taskInManager == null) {
-            return null;
+            throw new IdNotPresentException(id);
         }
         historyManager.add(new Task(taskInManager));
         return new Task(taskInManager);
@@ -106,7 +106,7 @@ public class InMemoryTaskManager implements TaskManager {
     public Task deleteTaskById(int id) {
         historyManager.remove(id);
         Task task = tasks.get(id);
-        if (task.getStartTime() != null) {
+        if (task != null && task.getStartTime() != null) {
             priorityList.remove(task);
         }
         return tasks.remove(id);
@@ -138,7 +138,7 @@ public class InMemoryTaskManager implements TaskManager {
     public Epic getEpicById(int id) {
         Epic epicInManager = epics.get(id);
         if (epicInManager == null) {
-            return null;
+            throw new IdNotPresentException(id);
         }
         historyManager.add(new Epic(epicInManager));
         return new Epic(epicInManager);
@@ -181,7 +181,7 @@ public class InMemoryTaskManager implements TaskManager {
     public List<Subtask> getEpicSubtasks(int id) {
         Epic currentEpic = epics.get(id);
         if (currentEpic == null) {
-            return null;
+            throw new IdNotPresentException(id);
         }
         List<Integer> subtaskIds = currentEpic.getSubtaskIds();
         return subtaskIds.stream()
@@ -266,7 +266,7 @@ public class InMemoryTaskManager implements TaskManager {
     public Subtask getSubtaskById(int id) {
         Subtask subtaskInManager = subtasks.get(id);
         if (subtaskInManager == null) {
-            return null;
+            throw new IdNotPresentException(id);
         }
         historyManager.add(new Subtask(subtaskInManager));
         return new Subtask(subtaskInManager);
