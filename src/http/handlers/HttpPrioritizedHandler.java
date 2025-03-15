@@ -9,12 +9,9 @@ import java.io.IOException;
 import java.util.List;
 
 public class HttpPrioritizedHandler extends BaseHttpHandler {
-    private final TaskManager taskManager;
-    private final Gson gson;
 
     public HttpPrioritizedHandler(TaskManager taskManager, Gson gson) {
-        this.taskManager = taskManager;
-        this.gson = gson;
+        super(taskManager, gson);
     }
 
     @Override
@@ -28,7 +25,7 @@ public class HttpPrioritizedHandler extends BaseHttpHandler {
             String json = gson.toJson(responseTasks);
             sendGetSuccess(exchange, json);
         } else {
-            sendNotFound(exchange);
+            sendMethodNotAllowed(exchange);
         }
     }
 }

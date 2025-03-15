@@ -13,12 +13,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 public class HttpEpicsHandler extends BaseHttpHandler {
-    private final TaskManager taskManager;
-    private final Gson gson;
 
     public HttpEpicsHandler(TaskManager taskManager, Gson gson) {
-        this.taskManager = taskManager;
-        this.gson = gson;
+        super(taskManager, gson);
     }
 
     @Override
@@ -32,10 +29,12 @@ public class HttpEpicsHandler extends BaseHttpHandler {
                 case "GET" -> handleGet(exchange, splitPath);
                 case "POST" -> handlePost(exchange, splitPath);
                 case "DELETE" -> handleDelete(exchange, splitPath);
-                default -> sendNotFound(exchange);
+                default -> sendMethodNotAllowed(exchange);
             }
-        } catch (NumberFormatException | IdNotPresentException e) {
+        } catch (IdNotPresentException e) {
             sendNotFound(exchange);
+        } catch (NumberFormatException e) {
+            sendMethodNotAllowed(exchange);
         } catch (Throwable e) {
             sendServerError(exchange);
         }
@@ -57,7 +56,7 @@ public class HttpEpicsHandler extends BaseHttpHandler {
             String json = gson.toJson(responseSubtasks);
             sendGetSuccess(exchange, json);
         } else {
-            sendNotFound(exchange);
+            sendMethodNotAllowed(exchange);
         }
     }
 
@@ -73,7 +72,7 @@ public class HttpEpicsHandler extends BaseHttpHandler {
             }
             sendCreateUpdateSuccess(exchange);
         } else {
-            sendNotFound(exchange);
+            sendMethodNotAllowed(exchange);
         }
     }
 
@@ -86,7 +85,7 @@ public class HttpEpicsHandler extends BaseHttpHandler {
             taskManager.deleteEpics();
             sendDeleteSuccess(exchange);
         } else {
-            sendNotFound(exchange);
+            sendMethodNotAllowed(exchange);
         }
     }
 }

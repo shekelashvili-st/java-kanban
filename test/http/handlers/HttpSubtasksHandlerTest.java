@@ -101,7 +101,7 @@ class HttpSubtasksHandlerTest extends HttpAbstractHandlerTest {
                     .build();
             response = client.send(request, HttpResponse.BodyHandlers.ofString());
         }
-        Assertions.assertEquals(404, response.statusCode());
+        Assertions.assertEquals(405, response.statusCode());
     }
 
     @Test

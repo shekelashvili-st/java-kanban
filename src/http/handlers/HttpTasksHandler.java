@@ -13,12 +13,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 public class HttpTasksHandler extends BaseHttpHandler {
-    private final TaskManager taskManager;
-    private final Gson gson;
 
     public HttpTasksHandler(TaskManager taskManager, Gson gson) {
-        this.taskManager = taskManager;
-        this.gson = gson;
+        super(taskManager, gson);
     }
 
     @Override
@@ -32,12 +29,14 @@ public class HttpTasksHandler extends BaseHttpHandler {
                 case "GET" -> handleGet(exchange, splitPath);
                 case "POST" -> handlePost(exchange, splitPath);
                 case "DELETE" -> handleDelete(exchange, splitPath);
-                default -> sendNotFound(exchange);
+                default -> sendMethodNotAllowed(exchange);
             }
-        } catch (NumberFormatException | IdNotPresentException e) {
+        } catch (IdNotPresentException e) {
             sendNotFound(exchange);
         } catch (TaskCollisionException e) {
             sendHasCollisions(exchange);
+        } catch (NumberFormatException e) {
+            sendMethodNotAllowed(exchange);
         } catch (Throwable e) {
             sendServerError(exchange);
         }
@@ -54,7 +53,7 @@ public class HttpTasksHandler extends BaseHttpHandler {
             String json = gson.toJson(responseTasks);
             sendGetSuccess(exchange, json);
         } else {
-            sendNotFound(exchange);
+            sendMethodNotAllowed(exchange);
         }
     }
 
@@ -70,7 +69,7 @@ public class HttpTasksHandler extends BaseHttpHandler {
             }
             sendCreateUpdateSuccess(exchange);
         } else {
-            sendNotFound(exchange);
+            sendMethodNotAllowed(exchange);
         }
     }
 
@@ -84,7 +83,7 @@ public class HttpTasksHandler extends BaseHttpHandler {
             taskManager.deleteTasks();
             sendDeleteSuccess(exchange);
         } else {
-            sendNotFound(exchange);
+            sendMethodNotAllowed(exchange);
         }
     }
 }

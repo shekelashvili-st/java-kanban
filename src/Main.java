@@ -24,7 +24,7 @@ public class Main {
                 Status.DONE, null, null, epic1WithId.getId());
         manager.createSubtask(subtask1);
 
-        HttpTaskServer httpTaskServer = new HttpTaskServer(PORT, manager);
+        HttpTaskServer httpTaskServer = new HttpTaskServer(PORT, manager, Managers.getGson());
         httpTaskServer.start();
 
         System.out.println("HTTP-сервер запущен на " + PORT + " порту!");
